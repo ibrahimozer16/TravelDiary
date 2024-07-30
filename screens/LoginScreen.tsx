@@ -1,13 +1,38 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AntDesign } from '@expo/vector-icons';
-import { auth } from '../model/firebase';
+import { auth, GoogleAuthProvider, signInWithCredential } from '../model/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+// import * as Google from 'expo-auth-session/providers/google';
+// import * as WebBrowser from 'expo-web-browser';
+// import { makeRedirectUri } from 'expo-auth-session';
 
+// WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen({navigation} : {navigation: any}) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    // const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    //     clientId: '77926693785-go66jcgosmo5i40vtksc4umr8phim536.apps.googleusercontent.com',
+    //     redirectUri: makeRedirectUri({
+    //         scheme: 'TravelDiary',
+    //     }),
+    // });
+
+    // useEffect(() => {
+    //     if(response?.type === 'success'){
+    //         const { id_token } = response.params;
+    //         const credential = GoogleAuthProvider.credential(id_token);
+    //         signInWithCredential(auth, credential)
+    //         .then((result) => {
+    //             const user = result.user;
+    //             console.log('User signed in: ', user);
+    //             navigation.navigate('Home');
+    //         }).catch((error) => {
+    //             console.error('Error signing in: ', error);
+    //         })
+    //     }
+    // }, [response])
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -31,11 +56,34 @@ export default function LoginScreen({navigation} : {navigation: any}) {
             const user = userCredentials.user;
             console.log('Kullanıcı Giriş Yaptı ', user.email);
             navigation.navigate('Home');
-        }).catch((error: { message: any }) => alert(error.message))
+        }).catch((error: { code: any, message: any }) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            switch (errorCode) {
+                case 'auth/invalid-email':
+                    alert("Girilen e-posta adresi geçersiz. Lütfen geçerli bir e-posta adresi girin.");
+                    break;
+                case 'auth/user-not-found':
+                    alert("Bu e-posta adresiyle kayıtlı bir kullanıcı bulunamadı. Lütfen kayıt olun.");
+                    break;
+                case 'auth/wrong-password':
+                    alert("Yanlış şifre girildi. Lütfen şifrenizi kontrol edin.");
+                    break;
+                case 'auth/network-request-failed':
+                    alert("Ağ hatası oluştu. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.");
+                    break;
+                default:
+                    alert(`Giriş yapılırken bir hata oluştu: ${errorMessage}`);
+            }
+        });
     }
 
     const handleSignUp = () => {
         navigation.navigate('SignUp');
+    }
+
+    const forgetPassword = () => {
+        navigation.navigate('ForgetPassword')
     }
 
   return (
@@ -61,7 +109,9 @@ export default function LoginScreen({navigation} : {navigation: any}) {
             value={password}
             onChangeText={setPassword}
             secureTextEntry/>
-        <Text style={styles.text3}>Şifremi Unuttum</Text>
+        <TouchableOpacity onPress={forgetPassword}>
+            <Text style={styles.text3}>Şifremi Unuttum</Text>
+        </TouchableOpacity>
       </SafeAreaView>
       <View style={styles.container1}>
         <TouchableOpacity style={styles.button} onPress={handleLogin}>

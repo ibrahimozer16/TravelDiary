@@ -9,6 +9,9 @@ import MapScreen from './screens/MapScreen';
 import CameraScreen from './screens/CameraScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ProfileEditScreen from './screens/ProfileEditScreen';
+import ForgetPassword from './screens/ForgetPassword';
+import MemoryScreen from './screens/MemoryScreen';
+import EditScreen from './screens/EditScreen';
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -23,6 +26,9 @@ export default function App() {
         <Stack.Screen options={{headerShown: false}} name="Camera" component={CameraScreen} />
         <Stack.Screen options={{headerShown: false}} name="Profile" component={ProfileScreen} />
         <Stack.Screen options={{headerShown: false}} name="ProfileEdit" component={ProfileEditScreen} />
+        <Stack.Screen options={{headerShown: false}} name="ForgetPassword" component={ForgetPassword} />
+        <Stack.Screen options={{headerShown: false}} name="Memory" component={MemoryScreen} />
+        <Stack.Screen options={{headerShown: false}} name="Edit" component={EditScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

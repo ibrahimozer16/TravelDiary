@@ -11,7 +11,7 @@ export default function ProfileScreen({navigation} : {navigation: any}) {
         keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}>
         <View style={styles.header}>
             <View style={styles.icon}>
-                <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Home')}>
                     <AntDesign name="arrowleft" size={24} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate('ProfileEdit')}>

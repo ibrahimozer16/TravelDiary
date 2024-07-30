@@ -19,12 +19,26 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
             navigation.navigate('Login')
         })
         .catch((error) => {
-            // Hata durumunda
             const errorCode = error.code;
             const errorMessage = error.message;
             console.log('Error code:', errorCode);
             console.log('Error message:', errorMessage);
-            alert("Kayıt işlemi sırasında bir hata oluştu!");
+            switch (errorCode) {
+                case 'auth/invalid-email':
+                    alert("Girilen e-posta adresi geçersiz. Lütfen geçerli bir e-posta adresi girin.");
+                    break;
+                    case 'auth/network-request-failed':
+                        alert("Ağ hatası oluştu. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.");
+                        break;
+                    case 'auth/email-already-in-use':
+                        alert("Bu e-posta adresi zaten kullanımda. Başka bir e-posta adresi deneyin veya giriş yapın.");
+                        break;
+                    case 'auth/weak-password':
+                        alert("Girilen şifre çok zayıf. Lütfen daha güçlü bir şifre girin.");
+                        break;
+                    default:
+                        alert(`Bir hata oluştu: ${errorMessage}`);
+            }
         });
     }
 

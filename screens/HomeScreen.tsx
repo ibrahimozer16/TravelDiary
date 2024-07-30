@@ -1,8 +1,33 @@
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React from 'react';
+import { FlatList, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native'
+import React, { useEffect, useState } from 'react';
 import { MaterialCommunityIcons, Feather  } from '@expo/vector-icons';
+import { firestore } from '../model/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 export default function HomeScreen({navigation} : {navigation: any}) {
+    const [memories, setMemories] = useState<any[]>([])
+
+    useEffect(() => {
+        const fetchMemories = async () => {
+            const querySnapshot = await getDocs(collection(firestore, 'Memories'));
+            const memoriesData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setMemories(memoriesData);
+        };
+        fetchMemories();
+    }, []);
+
+    const renderItem = ({item}: {item:any}) => {
+        return (
+            <TouchableOpacity style={styles.itemContainer} onPress={() => navigation.navigate('Memory', { memory: item })}>
+                <Image source={{ uri: item.imageUrl }} style={styles.image}/>
+                <Text style={styles.cityText}>{item.location.city}</Text>
+            </TouchableOpacity>
+        );
+    }
+
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView style={styles.keyContainer}>
@@ -20,7 +45,14 @@ export default function HomeScreen({navigation} : {navigation: any}) {
         </View>
       </KeyboardAvoidingView>
       <View style={styles.container1}>
-    <Text>fotoğraflar</Text>
+        <FlatList 
+            data={memories}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalList}
+        />
       </View>
       <View style={styles.container2}>
         <View style={styles.tabbar}>
@@ -47,17 +79,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     keyContainer: {
-        width: '85%',
+        width: '90%',
         flex: 3,
-        backgroundColor: 'red',
         justifyContent: 'center'
     },
     container1: {
         justifyContent: 'center',
         alignItems: 'center',
-        width: '85%',
+        width: '90%',
         flex: 4,
-        backgroundColor: 'green'
     },
     container2: {
         width: '100%',
@@ -94,4 +124,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
     },
+    itemContainer: {
+        
+    },
+    image: {
+        flex: 1,
+        width: 220,
+        borderRadius: 10,
+        marginRight: 20,
+    },
+    cityText: {
+        marginVertical: 8,
+        fontSize: 16,
+    },
+    horizontalList: {
+        paddingHorizontal: 10,
+    }
 })
