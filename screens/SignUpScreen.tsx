@@ -1,20 +1,47 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useReducer } from 'react'
 import { AntDesign } from '@expo/vector-icons';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../model/firebase'
+import { auth, firestore } from '../model/firebase'
+import { useUser } from '../context/UserContext';
+import { setDoc, doc } from 'firebase/firestore';
 
 export default function SignUpScreen({navigation} : {navigation: any}) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [name, setName] = useState('');
-    const [surname, setSurname] = useState('');
+
+    const initialState = {name: '', surname: '', email: '', password: ''}
+
+    const reducer = (state: any, action: {type: any, payload: any}) => {
+        switch(action.type){
+            case 'setName':
+                return {...state, name: action.payload};
+            case 'setSurname':
+                return {...state, surname: action.payload};    
+            case 'setEmail':
+                return {...state, email: action.payload};
+            case 'setPassword':
+                return {...state, password: action.payload};
+            default: 
+                return state;     
+        }
+    }
+
+    const [state, dispatchLocal] = useReducer(reducer, initialState);
+    const { dispatch } = useUser();
 
 
     const handleSignUp = () => {
-        createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
+        createUserWithEmailAndPassword(auth, state.email, state.password)
+        .then(async (userCredential) => {
             console.log("User registered: ", userCredential.user);
+
+            await setDoc(doc(firestore, 'Users', userCredential.user.uid), {
+                name: state.name,
+                surname: state.surname,
+                email: state.email,
+                password: state.password,
+            })
+
+            dispatch({type: 'SET_USER', payload: state})
             alert("Kayıt İşlemi Başarılı");
             navigation.navigate('Login')
         })
@@ -63,27 +90,27 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
             <Text style={styles.text2}>Ad</Text>
             <TextInput 
                 style={styles.input}
-                value={name}
-                onChangeText={setName}
+                value={state.name}
+                onChangeText={(text) => dispatchLocal({type: 'setName', payload: text})}
             />
             <Text style={styles.text2}>Soyad</Text>
             <TextInput 
                 style={styles.input}
-                value={surname}
-                onChangeText={setSurname}
+                value={state.surname}
+                onChangeText={(text) => dispatchLocal({type: 'setSurname', payload: text})}
             />
             <Text style={styles.text2}>Email</Text>
             <TextInput 
                 style={styles.input} 
-                value={email}
-                onChangeText={setEmail}
+                value={state.email}
+                onChangeText={(text) => dispatchLocal({type: 'setEmail', payload: text})}
                 keyboardType='email-address'
             />
             <Text style={styles.text2}>Şifre</Text>
             <TextInput 
                 style={styles.input} 
-                value={password}
-                onChangeText={setPassword}
+                value={state.password}
+                onChangeText={(text) => dispatchLocal({type: 'setPassword', payload: text})}
                 secureTextEntry
             />
         </SafeAreaView>

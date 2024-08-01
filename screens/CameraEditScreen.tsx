@@ -7,7 +7,7 @@ import { firestore, storage, auth } from '../model/firebase';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
-export default function CameraScreen({navigation} : {navigation:any}) {
+export default function CameraEditScreen({navigation} : {navigation:any}) {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
@@ -42,21 +42,6 @@ export default function CameraScreen({navigation} : {navigation:any}) {
     }
   }
 
-  const getLocation = async () => {
-    let {status} = await Location.requestForegroundPermissionsAsync();
-    if(status !== 'granted'){
-      alert('Permission to access location was denied');
-      return;
-    }
-
-    let location = await Location.getCurrentPositionAsync({});
-    setLocation(location.coords);
-
-    let geocode = await Location.reverseGeocodeAsync(location.coords);
-    if(geocode.length > 0){
-      setCity(geocode[0].city || 'Unknown City');
-    }
-  }
 
   const uploadImage = async (uri: string) => {
     const response = await fetch(uri);
@@ -122,17 +107,6 @@ export default function CameraScreen({navigation} : {navigation:any}) {
                 <Text><AntDesign name="arrowleft" size={24} color="white" /></Text>
               </TouchableOpacity>
               <View style={styles.inputs}>
-                <View style={styles.inputContainer}>
-                  <TouchableOpacity style={styles.button} onPress={getLocation}>
-                    <Text style={styles.text}><MaterialIcons name="location-on" size={18} color="white" /> Konum Ekle</Text>
-                  </TouchableOpacity>
-                  <TextInput 
-                    style={styles.input}
-                    placeholder='Anı Ekle'
-                    onChangeText={setMemory}
-                    value={memory}
-                  />
-                </View>
                 <TouchableOpacity style={styles.buttonSave} onPress={savePhoto} disabled={uploading}>
                   <Text style={styles.saveText}>{uploading ? 'Kaydediliyor...' : 'Kaydet'}</Text>
                 </TouchableOpacity>
@@ -213,22 +187,6 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 15,
-    marginBottom: 10,
-    paddingLeft: 10,
-    flex: 1,
-    color: 'white',
-    marginHorizontal: 5,
   },
   buttonSave: {
     borderWidth: 1,

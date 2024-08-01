@@ -1,8 +1,5 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
-import { AntDesign } from '@expo/vector-icons';
-import SignUpScreen from './SignUpScreen';
-import LoginScreen from './LoginScreen';
 
 export default function FirstScreen({navigation} : {navigation: any}) {
   return (

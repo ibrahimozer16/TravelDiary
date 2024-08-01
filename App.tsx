@@ -12,24 +12,29 @@ import ProfileEditScreen from './screens/ProfileEditScreen';
 import ForgetPassword from './screens/ForgetPassword';
 import MemoryScreen from './screens/MemoryScreen';
 import EditScreen from './screens/EditScreen';
+import CameraEditScreen from './screens/CameraEditScreen';
+import { UserProvider } from './context/UserContext';
 
 export default function App() {
   const Stack = createNativeStackNavigator();
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen options={{headerShown: false}} name="First" component={FirstScreen} />
-        <Stack.Screen options={{headerShown: false}} name="Login" component={LoginScreen} />
-        <Stack.Screen options={{headerShown: false}} name="SignUp" component={SignUpScreen} />
-        <Stack.Screen options={{headerShown: false}} name="Home" component={HomeScreen} />
-        <Stack.Screen options={{headerShown: false}} name="Map" component={MapScreen} />
-        <Stack.Screen options={{headerShown: false}} name="Camera" component={CameraScreen} />
-        <Stack.Screen options={{headerShown: false}} name="Profile" component={ProfileScreen} />
-        <Stack.Screen options={{headerShown: false}} name="ProfileEdit" component={ProfileEditScreen} />
-        <Stack.Screen options={{headerShown: false}} name="ForgetPassword" component={ForgetPassword} />
-        <Stack.Screen options={{headerShown: false}} name="Memory" component={MemoryScreen} />
-        <Stack.Screen options={{headerShown: false}} name="Edit" component={EditScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <UserProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen options={{headerShown: false}} name="First" component={FirstScreen} />
+          <Stack.Screen options={{headerShown: false}} name="Login" component={LoginScreen} />
+          <Stack.Screen options={{headerShown: false}} name="SignUp" component={SignUpScreen} />
+          <Stack.Screen options={{headerShown: false}} name="Home" component={HomeScreen} />
+          <Stack.Screen options={{headerShown: false}} name="Map" component={MapScreen} />
+          <Stack.Screen options={{headerShown: false}} name="Camera" component={CameraScreen} />
+          <Stack.Screen options={{headerShown: false}} name="Profile" component={ProfileScreen} />
+          <Stack.Screen options={{headerShown: false}} name="ProfileEdit" component={ProfileEditScreen} />
+          <Stack.Screen options={{headerShown: false}} name="ForgetPassword" component={ForgetPassword} />
+          <Stack.Screen options={{headerShown: false}} name="Memory" component={MemoryScreen} />
+          <Stack.Screen options={{headerShown: false}} name="Edit" component={EditScreen} />
+          <Stack.Screen options={{headerShown: false}} name="CameraEdit" component={CameraEditScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </UserProvider>
   );
 }

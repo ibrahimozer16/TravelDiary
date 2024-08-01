@@ -1,23 +1,30 @@
 import { FlatList, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native'
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { MaterialCommunityIcons, Feather  } from '@expo/vector-icons';
-import { firestore } from '../model/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { firestore, auth } from '../model/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function HomeScreen({navigation} : {navigation: any}) {
     const [memories, setMemories] = useState<any[]>([])
+    const currentUser = auth.currentUser;
 
-    useEffect(() => {
         const fetchMemories = async () => {
-            const querySnapshot = await getDocs(collection(firestore, 'Memories'));
-            const memoriesData = querySnapshot.docs.map(doc => ({
+            if(currentUser){
+                const q = query(collection(firestore, 'Memories'), where('email', '==', currentUser.email))
+                const querySnapshot = await getDocs(q);
+                const memoriesData = querySnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data(),
             }));
             setMemories(memoriesData);
+            }
         };
-        fetchMemories();
-    }, []);
+        useFocusEffect(
+            useCallback(() => {
+                fetchMemories();
+            }, [currentUser])
+        )
 
     const renderItem = ({item}: {item:any}) => {
         return (
@@ -51,7 +58,7 @@ export default function HomeScreen({navigation} : {navigation: any}) {
             keyExtractor={item => item.id}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalList}
+            style={styles.horizontalList}
         />
       </View>
       <View style={styles.container2}>

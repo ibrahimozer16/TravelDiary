@@ -1,10 +1,156 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, Alert } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { AntDesign } from '@expo/vector-icons';
+import { useUser } from '../context/UserContext';
+import { auth, firestore, storage } from '../model/firebase'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
+import * as ImagePicker from 'expo-image-picker';
+import { Camera } from 'expo-camera';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 
 export default function ProfileEditScreen({navigation} : {navigation: any}) {
-  return (
+    const { state, dispatch } = useUser();
+    const { user } = state;
+    const [showPassword, setShowPassword] = useState(false);
+    const [name, setName] = useState(user?.name || '');
+    const [surname, setSurname] = useState(user?.surname || '');
+    const [oldPassword, setOldPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [profileImage, setProfileImage] = useState<string | null>(user?.profileImage || null);
+
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const currentUser = auth.currentUser;
+            if(currentUser){
+                const userDoc = await getDoc(doc(firestore, 'Users', currentUser.uid));
+                if(userDoc.exists()){
+                    const userData = userDoc.data();
+                    dispatch({
+                        type: 'SET_USER',
+                        payload: {
+                            name: userData.name || '',
+                            surname: userData.surname || '',
+                            email: userData.email || '',
+                            password: userData.password || '',
+                            profileImage: userData.profileImage || null,
+                        }
+                    })
+                    setName(userData.name || '');
+                    setSurname(userData.surname || '');
+                    setProfileImage(userData.imageProfile || null);
+                }
+            }
+        }
+        fetchUserData();
+    }, [])
+
+    const handleSave = async () => {
+        try {
+            const currentUser = auth.currentUser;
+            if(currentUser && oldPassword && newPassword){
+                const credential = EmailAuthProvider.credential(currentUser.email ?? '', oldPassword);
+                await reauthenticateWithCredential(currentUser, credential);
+                await updatePassword(currentUser, newPassword);
+            }
+            if(currentUser){
+                await updateDoc(doc(firestore, 'Users', currentUser.uid), {
+                    name,
+                    surname,
+                    email: user?.email ?? '',
+                    password: newPassword ? newPassword : oldPassword,
+                    profileImage: profileImage ?? user?.profileImage,
+                })
+                dispatch({
+                    type: 'SET_USER',
+                    payload: {
+                        name,
+                        surname,
+                        email: user?.email ?? '',
+                        password: newPassword ? newPassword : oldPassword,
+                        profileImage: profileImage! ?? user?.profileImage,
+                    }
+                })
+                alert('Profil güncellendi!');
+                navigation.navigate('Profile');
+            }
+        } catch (error) {
+            console.error('Error updating profile: ', error);
+            alert('Profil güncellenirken bir hata oluştu. Lütfen tekrar deneyin.');
+        }
+    }
+    const addPhoto = () => {
+        Alert.alert(
+            "Add Photo",
+            "Choose an option",
+            [
+              {
+                text: "Camera",
+                onPress: openCamera,
+              },
+              {
+                text: "Gallery",
+                onPress: selectImage,
+              },
+              {
+                text: "Cancel",
+                style: "cancel"
+              }
+            ],
+            { cancelable: true }
+          );
+    }
+
+    const selectImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            handleImagePicked(result.assets[0].uri);
+          }
+    }
+    
+    const openCamera = async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      if (status === 'granted') {
+        let result = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        });
+  
+        if (!result.canceled) {
+          handleImagePicked(result.assets[0].uri);
+        }
+      } else {
+        alert('Camera permission denied');
+      }
+    };
+
+    const handleImagePicked = async (uri: string) => {
+        try {
+          const currentUser = auth.currentUser;
+          if (currentUser) {
+            const response = await fetch(uri);
+            const blob = await response.blob();
+            const storageRef = ref(storage, `profileImages/${currentUser.uid}`);
+            await uploadBytes(storageRef, blob);
+            const downloadURL = await getDownloadURL(storageRef);
+            setProfileImage(downloadURL);
+          }
+        } catch (error) {
+          console.error('Error uploading image: ', error);
+          alert('Fotoğraf yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
+        }
+      };
+
+    return (
     <KeyboardAvoidingView 
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -14,22 +160,50 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
                 <AntDesign name="arrowleft" size={24} color="black" />
             </TouchableOpacity>
             <Text style={styles.text1}>Profil</Text>
-            <Image style={styles.image} source={require('../assets/avatar.png')}/>
+            <TouchableOpacity onPress={addPhoto}>
+                <Image style={styles.image} source={profileImage ? { uri: profileImage } : require('../assets/avatar.png')}/>
+            </TouchableOpacity>
         </View>
         <SafeAreaView style={styles.inputContainer}>
             <Text style={styles.text2}>Ad</Text>
-            <TextInput style={styles.input}></TextInput>
+            <TextInput 
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+            />
             <Text style={styles.text2}>Soyad</Text>
-            <TextInput style={styles.input}></TextInput>
+            <TextInput 
+                style={styles.input}
+                value={surname}
+                onChangeText={setSurname}
+            />
             <Text style={styles.text2}>Email</Text>
-            <TextInput style={styles.input} keyboardType='email-address'></TextInput>
+            <TextInput 
+                style={styles.input} 
+                value={user?.email ?? ''}
+                editable= {false}
+                keyboardType='email-address'
+            />
             <Text style={styles.text2}>Eski Şifre</Text>
-            <TextInput style={styles.input} secureTextEntry></TextInput>
+            <TextInput
+                style={styles.input}
+                value={oldPassword}
+                onChangeText={setOldPassword}
+                secureTextEntry={!showPassword}
+            />
             <Text style={styles.text2}>Yeni Şifre</Text>
-            <TextInput style={styles.input} secureTextEntry></TextInput>
+            <TextInput
+                style={styles.input}
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Text>{showPassword ? 'Şifreyi Gizle' : 'Şifreyi Göster'}</Text>
+            </TouchableOpacity>
         </SafeAreaView>
         <View style={styles.container1}>
-            <TouchableOpacity style={styles.button} onPress={() => {}}>
+            <TouchableOpacity style={styles.button} onPress={handleSave}>
                 <Text style={styles.buttonText}>Kaydet</Text>
             </TouchableOpacity>
         </View>
@@ -106,3 +280,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
 })
+
+function handleImagePicked(uri: any) {
+    throw new Error('Function not implemented.');
+}

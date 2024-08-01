@@ -1,9 +1,37 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native'
-import React from 'react'
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react'
+import { AntDesign, MaterialIcons, Entypo } from '@expo/vector-icons';
+import { useUser } from '../context/UserContext';
+import { auth, firestore } from '../model/firebase'
+import { doc, getDoc } from 'firebase/firestore'
 
 
 export default function ProfileScreen({navigation} : {navigation: any}) {
+    const { state, dispatch } = useUser();
+    const { user } = state;
+    const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const currentUser = auth.currentUser;
+            if(currentUser){
+                const userDoc = await getDoc(doc(firestore, 'Users', currentUser.uid));
+                if(userDoc.exists()){
+                    const userData = userDoc.data();
+                    dispatch({ 
+                        type: 'SET_USER', 
+                        payload: {
+                            name: userData.name || '',
+                            surname: userData.surname || '',
+                            email: userData.email || '',
+                            password: userData.password || '',
+                    } });
+                }
+            }
+        }
+        fetchUserData();
+    }, [])
+
   return (
     <KeyboardAvoidingView 
         style={styles.container}
@@ -21,16 +49,32 @@ export default function ProfileScreen({navigation} : {navigation: any}) {
             <Text style={styles.text1}>Profil</Text>
             <Image style={styles.image} source={require('../assets/avatar.png')}/>
         </View>
-        <SafeAreaView style={styles.inputContainer}>
-            <Text style={styles.text2}>Ad</Text>
-            <TextInput style={styles.input}></TextInput>
-            <Text style={styles.text2}>Soyad</Text>
-            <TextInput style={styles.input}></TextInput>
-            <Text style={styles.text2}>Email</Text>
-            <TextInput style={styles.input} keyboardType='email-address'></TextInput>
-            <Text style={styles.text2}>Şifre</Text>
-            <TextInput style={styles.input} secureTextEntry></TextInput>
-        </SafeAreaView>
+        <View style={styles.inputContainer}>
+            {user ? (
+                <>
+                    <Text style={styles.text2}>Ad</Text>
+                    <Text style={styles.input}>{user.name}</Text>
+                    <Text style={styles.text2}>Soyad</Text>
+                    <Text style={styles.input}>{user.surname}</Text>
+                    <Text style={styles.text2}>Email</Text>
+                    <Text style={styles.input}>{user.email}</Text>
+                    <Text style={styles.text2}>Şifre</Text>
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            style={styles.passwordInput}
+                            value={user.password}
+                            secureTextEntry={!showPassword}
+                            editable={false}
+                        />
+                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                            <Entypo name={showPassword ? 'eye-with-line' : 'eye'} size={24} color="black" />
+                        </TouchableOpacity>
+                    </View>
+                </>
+            ):(
+                <Text style={styles.errorText}>Kullanıcı bilgileri bulunamadı</Text>
+            )}
+        </View>
         <View style={styles.container1}>
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
                 <Text style={styles.buttonText}>Çıkış Yap</Text>
@@ -88,6 +132,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: '#99B6B6',
         height: 30,
+        textAlignVertical: 'center',
     },
     button: {
         alignSelf: 'center',
@@ -107,5 +152,23 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         justifyContent: 'center',
         fontSize: 18,
+    },
+    errorText: {
+        fontSize: 18,
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderRadius: 10,
+        backgroundColor: '#99B6B6',
+        height: 30,
+      },
+    passwordInput: {
+        fontSize: 16,
+        flex: 1,
     },
 })

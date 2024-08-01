@@ -1,38 +1,13 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AntDesign } from '@expo/vector-icons';
-import { auth, GoogleAuthProvider, signInWithCredential } from '../model/firebase';
+import { auth } from '../model/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-// import * as Google from 'expo-auth-session/providers/google';
-// import * as WebBrowser from 'expo-web-browser';
-// import { makeRedirectUri } from 'expo-auth-session';
-
-// WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen({navigation} : {navigation: any}) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    // const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    //     clientId: '77926693785-go66jcgosmo5i40vtksc4umr8phim536.apps.googleusercontent.com',
-    //     redirectUri: makeRedirectUri({
-    //         scheme: 'TravelDiary',
-    //     }),
-    // });
-
-    // useEffect(() => {
-    //     if(response?.type === 'success'){
-    //         const { id_token } = response.params;
-    //         const credential = GoogleAuthProvider.credential(id_token);
-    //         signInWithCredential(auth, credential)
-    //         .then((result) => {
-    //             const user = result.user;
-    //             console.log('User signed in: ', user);
-    //             navigation.navigate('Home');
-    //         }).catch((error) => {
-    //             console.error('Error signing in: ', error);
-    //         })
-    //     }
-    // }, [response])
+    
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
