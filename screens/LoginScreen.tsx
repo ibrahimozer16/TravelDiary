@@ -1,13 +1,16 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AntDesign } from '@expo/vector-icons';
 import { auth } from '../model/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useGoogleAuth } from '../model/GoogleAuth';
+import { handleTwitterLogin } from '../model/TwitterAuth';
 
 export default function LoginScreen({navigation} : {navigation: any}) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     
+    const { promptAsync } = useGoogleAuth();
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -71,7 +74,7 @@ export default function LoginScreen({navigation} : {navigation: any}) {
         <Text style={styles.text}>Gezi Günlüğü</Text>
         <Text style={styles.text1}>Giriş Yap</Text>
       </View>
-      <SafeAreaView style={styles.inputContainer}>
+      <KeyboardAvoidingView style={styles.inputContainer}>
         <Text style={styles.text2}>Email</Text>
         <TextInput 
             style={styles.input} 
@@ -87,7 +90,7 @@ export default function LoginScreen({navigation} : {navigation: any}) {
         <TouchableOpacity onPress={forgetPassword}>
             <Text style={styles.text3}>Şifremi Unuttum</Text>
         </TouchableOpacity>
-      </SafeAreaView>
+      </KeyboardAvoidingView>
       <View style={styles.container1}>
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Giriş Yap</Text>
@@ -96,11 +99,11 @@ export default function LoginScreen({navigation} : {navigation: any}) {
             <Text>Bir Hesabım Yok</Text>
         </TouchableOpacity>
         <Text style={styles.text4}>------------------  ya da  ------------------</Text>
-        <TouchableOpacity style={styles.button2} onPress={() => {}}>
+        <TouchableOpacity style={styles.button2} onPress={() => promptAsync()}>
             <Text style={styles.buttonText}>Google ile Giriş Yap</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button3} onPress={() => {}}>
-            <Text style={styles.buttonText}>Facebook ile Giriş Yap</Text>
+        <TouchableOpacity style={styles.button3} onPress={handleTwitterLogin}>
+            <Text style={styles.buttonText}>Twitter ile Giriş Yap</Text>
         </TouchableOpacity>
       </View>
     </View>

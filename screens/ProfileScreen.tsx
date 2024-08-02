@@ -25,6 +25,7 @@ export default function ProfileScreen({navigation} : {navigation: any}) {
                             surname: userData.surname || '',
                             email: userData.email || '',
                             password: userData.password || '',
+                            profileImage: userData.profileImage || null,
                     } });
                 }
             }
@@ -47,7 +48,7 @@ export default function ProfileScreen({navigation} : {navigation: any}) {
                 </TouchableOpacity>
             </View>
             <Text style={styles.text1}>Profil</Text>
-            <Image style={styles.image} source={require('../assets/avatar.png')}/>
+            <Image style={styles.image} source={user?.profileImage ? { uri: user.profileImage } : require('../assets/avatar.png')}/>
         </View>
         <View style={styles.inputContainer}>
             {user ? (
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
         flex: 1.5,
     },
     header: {
-        top: 50,
+        top: 40,
         alignItems: 'center',
         flex: 3,
     },
@@ -111,8 +112,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     image: {
-        width: 170,
-        height: 170,
+        width: 180,
+        height: 180,
+        borderRadius: 90,
     },
     text: {
         fontSize: 25,

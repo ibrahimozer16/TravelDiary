@@ -1,13 +1,38 @@
-import { FlatList, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native'
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, SafeAreaView } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react';
 import { MaterialCommunityIcons, Feather  } from '@expo/vector-icons';
 import { firestore, auth } from '../model/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, getDoc, doc } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
+import { useUser } from '../context/UserContext';
 
 export default function HomeScreen({navigation} : {navigation: any}) {
     const [memories, setMemories] = useState<any[]>([])
     const currentUser = auth.currentUser;
+    const { state, dispatch } = useUser();
+    const { user } = state;
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const currentUser = auth.currentUser;
+            if(currentUser){
+                const userDoc = await getDoc(doc(firestore, 'Users', currentUser.uid));
+                if(userDoc.exists()){
+                    const userData = userDoc.data();
+                    dispatch({ 
+                        type: 'SET_USER', 
+                        payload: {
+                            name: userData.name || '',
+                            surname: userData.surname || '',
+                            email: userData.email || '',
+                            password: userData.password || '',
+                            profileImage: userData.profileImage || null,
+                    } });
+                }
+            }
+        }
+        fetchUserData();
+    }, [])
 
         const fetchMemories = async () => {
             if(currentUser){
@@ -37,8 +62,11 @@ export default function HomeScreen({navigation} : {navigation: any}) {
 
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView style={styles.keyContainer}>
-        <Text style={styles.text}>Merhaba İbrahim    <MaterialCommunityIcons name="hand-wave" size={24} color="black" /></Text>
+      <SafeAreaView style={styles.keyContainer}>
+        <View style={styles.header}>
+            <Text style={styles.text}>Merhaba {user?.name}</Text>
+            <MaterialCommunityIcons style={styles.icon} name="hand-wave" size={24} color="black" />
+        </View>
         <TextInput style={styles.input} placeholder='    Anı Ara'/>
         <Text style={styles.text}>Anılar</Text>
         <View style={styles.buttonView}>
@@ -50,7 +78,7 @@ export default function HomeScreen({navigation} : {navigation: any}) {
                 <Text style={styles.buttonText}>Puana Göre</Text>
             </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
+      </SafeAreaView>
       <View style={styles.container1}>
         <FlatList 
             data={memories}
@@ -102,9 +130,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#B1C9DA',
         justifyContent: 'center',
     },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
     text: {
         fontSize: 30,
         marginVertical: 20,
+    },
+    icon: {
+        marginTop: 30,
     },
     buttonView: {
         flexDirection: 'row',
@@ -146,5 +181,5 @@ const styles = StyleSheet.create({
     },
     horizontalList: {
         paddingHorizontal: 10,
-    }
+    },
 })

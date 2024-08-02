@@ -18,6 +18,7 @@
     ],
     "name": "TravelDiary",
     "slug": "TravelDiary",
+    "scheme": "TravelDiary",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -55,7 +56,6 @@
       "eas": {
         "projectId": "9019a0b9-5795-49a7-9910-4c1c59b53894"
       }
-    },
-    "schema": "TravelDiary"
+    }
   }
 }

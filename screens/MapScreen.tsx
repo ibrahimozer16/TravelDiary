@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { GOOGLE_API_KEY } from '../environment';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import { firestore } from '../model/firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import { Feather } from '@expo/vector-icons';
 
 type LocationType = Location.LocationObject | null;
 type LocationType1 = {
@@ -100,7 +101,7 @@ export default function MapScreen({navigation}:{navigation:any}) {
           query={{
             key: GOOGLE_API_KEY,
             language: 'en',
-            types: '(cities)', // Şehirleri filtrelemek için
+            types: '(cities)',
           }}
           styles={{
             textInputContainer: styles.textInputContainer,
@@ -110,8 +111,25 @@ export default function MapScreen({navigation}:{navigation:any}) {
             },
           }}
           fetchDetails={true}
-          enablePoweredByContainer={false} // 'Powered by Google' yazısını kaldırmak için
+          enablePoweredByContainer={false}
         />
+      </View>
+      <View style={styles.footer}>
+        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('Home')}>
+          <Feather name="home" size={32} color="black"/>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.footerButton} onPress={() => {
+          if (location) {
+            setRegion({
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            });
+          }
+        }}>
+          <Feather name="map-pin" size={32} color="black"/>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -141,6 +159,17 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-
+    width: '100%',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    paddingVertical: 10,
+  },
+  footerButton: {
+    alignItems: 'center',
   },
 });

@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     header: {
-        top: 50,
+        top: 40,
         alignItems: 'center',
         flex: 4,
     },
@@ -239,8 +239,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     image: {
-        width: 170,
-        height: 170,
+        width: 180,
+        height: 180,
+        borderRadius: 90,
     },
     text: {
         fontSize: 25,
