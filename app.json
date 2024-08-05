@@ -2,6 +2,17 @@
   "expo": {
     "plugins": [
       [
+        "@react-native-google-signin/google-signin"
+      ],
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "2806292092879426",
+          "clientToken": "577ab71b7c06a9c129b38723652b67e0",
+          "displayName": "TravelDiary"
+        }
+      ],
+      [
         "expo-camera",
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
@@ -32,6 +43,7 @@
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyDOwe_72EYO0t1Vpx-TEZDBeNHUMRXpNrw"

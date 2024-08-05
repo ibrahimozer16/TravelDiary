@@ -4,6 +4,8 @@ import { AntDesign, MaterialIcons, Entypo } from '@expo/vector-icons';
 import { useUser } from '../context/UserContext';
 import { auth, firestore } from '../model/firebase'
 import { doc, getDoc } from 'firebase/firestore'
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
 
 
 export default function ProfileScreen({navigation} : {navigation: any}) {
@@ -31,7 +33,37 @@ export default function ProfileScreen({navigation} : {navigation: any}) {
             }
         }
         fetchUserData();
-    }, [])
+    }, [dispatch])
+
+    const handleSignOut = async () => {
+        try {
+            const currentUser = auth.currentUser;
+            const isSignedInWithGoogle = currentUser?.providerData.some(
+                (provider) => provider.providerId === 'google.com'
+            )
+
+            const isSignedInWithFacebook = currentUser?.providerData.some(
+                (provider) => provider.providerId === 'facebook.com'
+            );
+
+            await auth.signOut();
+        
+            if(isSignedInWithGoogle) {
+                await GoogleSignin.revokeAccess();
+                await GoogleSignin.signOut();
+            }
+
+            if (isSignedInWithFacebook) {
+                await LoginManager.logOut();
+            }
+
+            dispatch({type: 'CLEAR_USER'});
+            navigation.navigate('Login');
+
+        } catch (error) {
+            console.error('Error signing out: ', error);
+        }
+    }
 
   return (
     <KeyboardAvoidingView 
@@ -77,7 +109,9 @@ export default function ProfileScreen({navigation} : {navigation: any}) {
             )}
         </View>
         <View style={styles.container1}>
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
+            <TouchableOpacity 
+                style={styles.button} 
+                onPress={handleSignOut}>
                 <Text style={styles.buttonText}>Çıkış Yap</Text>
             </TouchableOpacity>
         </View>

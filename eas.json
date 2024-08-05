@@ -15,7 +15,8 @@
         "buildType": "apk"
       },
       "ios": {
-        "buildType": "app-store"
+        "releaseChannel": "production",
+        "distribution": "store"
       }
     }
   },
