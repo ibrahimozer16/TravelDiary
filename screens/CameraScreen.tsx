@@ -1,4 +1,4 @@
-import { CameraView, CameraType, useCameraPermissions, CameraCapturedPicture } from 'expo-camera';
+import { Camera, CameraType, useCameraPermissions, CameraCapturedPicture, CameraView } from 'expo-camera';
 import { useRef, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, TextInput, ImageBackground } from 'react-native';
 import { MaterialIcons, AntDesign, Entypo } from '@expo/vector-icons';
@@ -18,12 +18,10 @@ export default function CameraScreen({navigation} : {navigation:any}) {
   const [uploading, setUploading] = useState(false)
 
   if (!permission) {
-    // Camera permissions are still loading.
     return <View />;
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet.
     return (
       <View style={styles.container}>
         <Text style={styles.message}>We need your permission to show the camera</Text>
@@ -42,6 +40,28 @@ export default function CameraScreen({navigation} : {navigation:any}) {
     }
   }
 
+  const getCityFromCoordinates = async (latitude: number, longitude: number) => {
+    try {
+      const geocode = await Location.reverseGeocodeAsync({ latitude, longitude });
+      if (geocode.length > 0) {
+        console.log('Geocode result:', geocode); // Geocode sonucu kontrol et
+        for (let i = 0; i < geocode.length; i++) {
+          if (geocode[i].city) {
+            return geocode[i].city;
+          } else if (geocode[i].subregion) {
+            return geocode[i].subregion;
+          } else if (geocode[i].region) {
+            return geocode[i].region;
+          }
+        }
+      }
+      return 'Unknown City';
+    } catch (error) {
+      console.error('Error in reverseGeocodeAsync:', error);
+      return 'Unknown City';
+    }
+  };
+
   const getLocation = async () => {
     let {status} = await Location.requestForegroundPermissionsAsync();
     if(status !== 'granted'){
@@ -52,10 +72,8 @@ export default function CameraScreen({navigation} : {navigation:any}) {
     let location = await Location.getCurrentPositionAsync({});
     setLocation(location.coords);
 
-    let geocode = await Location.reverseGeocodeAsync(location.coords);
-    if(geocode.length > 0){
-      setCity(geocode[0].city || 'Unknown City');
-    }
+    let city = await getCityFromCoordinates(location.coords.latitude, location.coords.longitude);
+    setCity(city);
   }
 
   const uploadImage = async (uri: string) => {
@@ -107,7 +125,6 @@ export default function CameraScreen({navigation} : {navigation:any}) {
   const returnBack = () => {
     setPhoto(null);
   }
-
 
   function toggleCameraFacing() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));

@@ -5,7 +5,8 @@ import 'expo-dev-client';
 import React, { useEffect, useState } from 'react';
 
 GoogleSignin.configure({
-    webClientId: '866912837476-q2uvnsdk3ak1fmhkavscts8suoeci217.apps.googleusercontent.com',
+    webClientId: '77926693785-go66jcgosmo5i40vtksc4umr8phim536.apps.googleusercontent.com',
+    offlineAccess: true,
 });
 
 export default function GoogleAuth() {

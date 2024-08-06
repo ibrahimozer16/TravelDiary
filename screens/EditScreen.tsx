@@ -1,158 +1,149 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, FlatList } from 'react-native'
-import React, { useReducer, useState } from 'react'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, FlatList } from 'react-native';
+import React, { useReducer, useState } from 'react';
 import { firestore, storage } from '../model/firebase';
-import { doc, deleteDoc, updateDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { doc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
 
-export default function EditScreen({route, navigation}:{route:any, navigation:any}) {
-    const {memory} = route.params || {};
-    const initialState = {memory: memory.memory, imageUrl: memory.imageUrl || []};
+export default function EditScreen({ route, navigation }: { route: any, navigation: any }) {
+  const { memory } = route.params || {};
+  const initialState = { memory: memory.memory, imageUrl: memory.imageUrl ? [memory.imageUrl] : [] };
 
-    const reducer = (state: any, action: { type: any; payload: any; }) => {
+  const reducer = (state: any, action: { type: any; payload: any; }) => {
     switch (action.type) {
       case 'setText':
-        return { memory: action.payload };
+        return { ...state, memory: action.payload };
       case 'setImage':
-        return { ...state, imageUrl: [...state.imageUrl, action.payload] };  
+        return { ...state, imageUrl: [...state.imageUrl, action.payload] };
       default:
         return state;
     }
   };
-    const [state, dispatch] = useReducer(reducer, initialState);
-    const [uploading, setUploading] = useState(false)
 
-    const deletePhoto = async () => {
-        await deleteDoc(doc(firestore, 'Memories', memory.imageUrl))
-    }
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [uploading, setUploading] = useState(false);
 
-    const addPhoto = () => {
-        Alert.alert(
-            "Add Photo",
-            "Choose an option",
-            [
-              {
-                text: "Camera",
-                onPress: navigation.navigate('Camera'),
-              },
-              {
-                text: "Gallery",
-                onPress: selectImage,
-              },
-              {
-                text: "Cancel",
-                style: "cancel"
-              }
-            ],
-            { cancelable: true }
-          );
-    }
-
-    const selectImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-        });
-
-        if (!result.canceled) {
-            handleImagePicked(result.assets[0].uri);
-          }
-    }
-    
-    // const openCamera = async () => {
-    //   const { status } = await Camera.requestCameraPermissionsAsync();
-    //   if (status === 'granted') {
-    //     let result = await ImagePicker.launchCameraAsync({
-    //       allowsEditing: true,
-    //       aspect: [4, 3],
-    //       quality: 1,
-    //     });
-  
-    //     if (!result.canceled) {
-    //       handleImagePicked(result.assets[0].uri);
-    //     }
-    //   } else {
-    //     alert('Camera permission denied');
-    //   }
-    // };
-
-    const handleImagePicked = async (uri: any) => {
-        try {
-            setUploading(true);
-
-            const response = await fetch(uri);
-            const blob = await response.blob();
-            const storageRef = ref(storage, `images/${Date.now()}`);
-            const snapshot = await uploadBytes(storageRef, blob);
-
-            const downloadURL = await getDownloadURL(snapshot.ref);
-            dispatch({type: 'setImages', payload: downloadURL})
-            setUploading(false);
-        } catch (error) {
-            console.log(error);
-            setUploading(false);
-            alert('Upload failed, sorry :(');
+  const addPhoto = () => {
+    Alert.alert(
+      "Add Photo",
+      "Choose an option",
+      [
+        {
+          text: "Camera",
+          onPress: openCamera,
+        },
+        {
+          text: "Gallery",
+          onPress: selectImage,
+        },
+        {
+          text: "Cancel",
+          style: "cancel"
         }
-    }
+      ],
+      { cancelable: true }
+    );
+  };
 
-    const saveEdit = async () => {
-        try {
-            const memoryDocRef = doc(firestore, 'Memories', memory.id);
-            await updateDoc(memoryDocRef, {
-                memory: state.memory,
-                imageUrl: state.imageUrl,
-            })
-            alert('Memory updated successfully!');
-            navigation.navigate('Memory', {memory: {...memory, memory: state.memory, imageUrl: state.imageUrl}});
-        } catch (error) {
-            console.error('Error updating memory: ', error);
-            alert('Failed to update memory');
-        }
+  const selectImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      handleImagePicked(result.assets[0].uri);
     }
+  };
+
+  const openCamera = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status === 'granted') {
+      let result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        handleImagePicked(result.assets[0].uri);
+      }
+    } else {
+      alert('Camera permission denied');
+    }
+  };
+
+  const handleImagePicked = async (uri: any) => {
+    try {
+      setUploading(true);
+
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      const storageRef = ref(storage, `images/${Date.now()}`);
+      const snapshot = await uploadBytes(storageRef, blob);
+
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      dispatch({ type: 'setImage', payload: downloadURL });
+      setUploading(false);
+    } catch (error) {
+      console.log(error);
+      setUploading(false);
+      alert('Upload failed, sorry :(');
+    }
+  };
+
+  const saveEdit = async () => {
+    try {
+      const memoryDocRef = doc(firestore, 'Memories', memory.id);
+      await updateDoc(memoryDocRef, {
+        memory: state.memory,
+        imageUrl: state.imageUrl[0], // assuming single image
+      });
+      alert('Memory updated successfully!');
+      navigation.navigate('Memory', { memory: { ...memory, memory: state.memory, imageUrl: state.imageUrl[0] } });
+    } catch (error) {
+      console.error('Error updating memory: ', error);
+      alert('Failed to update memory');
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.icon}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Memory', {memory})}>
             <AntDesign name="arrowleft" size={24} color="black" />
           </TouchableOpacity>
         </View>
         <Text style={styles.location}>{memory.location.city}</Text>
         <Text style={styles.date}>{new Date(memory.timestamp.seconds * 1000).toLocaleDateString()}</Text>
         <View style={styles.add}>
-            <Text style={styles.text}>Fotoğraflar</Text>
-            <TouchableOpacity onPress={addPhoto}>
-                <Entypo name="plus" size={24} color="black" style={styles.add1}/>
-            </TouchableOpacity>
+          <Text style={styles.text}>Fotoğraflar</Text>
+          <TouchableOpacity onPress={addPhoto}>
+            <Entypo name="plus" size={24} color="black" style={styles.add1} />
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.container1}>
-        {/* <Image source={{ uri: memory.imageUrl }} style={styles.image}/> */}
-        <FlatList 
-            data={state.imageUrl}
-            renderItem={({item}) => (
-                <Image source={{uri: item}} style={styles.image}/>
-            )}
-        />
+        <Image source={{ uri: memory.imageUrl }} style={styles.image} />
       </View>
       <View style={styles.container2}>
         <Text style={styles.text}>Anılar</Text>
-        <TextInput 
-            style={styles.memory}
-            value={state.memory}
-            onChangeText={(memory) => dispatch({type: 'setText', payload: memory})}
+        <TextInput
+          style={styles.memory}
+          value={state.memory}
+          onChangeText={(memory) => dispatch({ type: 'setText', payload: memory })}
         />
         <TouchableOpacity style={styles.button} onPress={saveEdit}>
-            <Text style={styles.buttonText}>Kaydet</Text>
+          <Text style={styles.buttonText}>{uploading ? 'Kaydediliyor...' : 'Kaydet'}</Text>
         </TouchableOpacity>
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

@@ -1,9 +1,40 @@
-import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Image, Alert } from 'react-native';
 import React from 'react';
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, MaterialIcons, Feather } from '@expo/vector-icons';
+import { firestore, storage } from '../model/firebase';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { ref, deleteObject } from 'firebase/storage';
 
 export default function MemoryScreen({ route, navigation }: { route: any, navigation: any }) {
   const { memory } = route.params;
+
+  const handleDelete = async () => {
+    try {
+      await deleteDoc(doc(firestore, 'Memories', memory.id));
+      const imageRef = ref(storage, memory.imageUrl);
+      await deleteObject(imageRef);
+      navigation.navigate('Home');
+    } catch (error) {
+      console.error('Error deleting memory: ', error);
+      Alert.alert('Error', 'Anıyı silerken bir hata oluştu.');
+    }
+  };
+
+  const confirmDelete = () => {
+    Alert.alert(
+      "Anıyı Sil",
+      "Bu anıyı silmek istediğinizden emin misiniz?",
+      [
+        { text: "İptal", style: "cancel" },
+        { text: "Sil", onPress: handleDelete }
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleEdit = () => {
+    navigation.navigate('Edit', { memory });
+  };
 
   return (
     <View style={styles.container}>
@@ -12,9 +43,14 @@ export default function MemoryScreen({ route, navigation }: { route: any, naviga
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <AntDesign name="arrowleft" size={24} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Edit', { memory })}>
-            <MaterialIcons name="edit" size={24} color="black" />
-          </TouchableOpacity>
+          <View style={styles.actionIcons}>
+            <TouchableOpacity onPress={handleEdit}>
+              <MaterialIcons name="edit" size={24} color="black" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={confirmDelete}>
+              <Feather name="trash-2" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
         </View>
         <Text style={styles.location}>{memory.location.city}</Text>
         <Text style={styles.date}>{new Date(memory.timestamp.seconds * 1000).toLocaleDateString()}</Text>
@@ -61,6 +97,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 30,
+  },
+  actionIcons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: 60,
   },
   image: {
     flex: 1,

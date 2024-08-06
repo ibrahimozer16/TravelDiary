@@ -5,8 +5,8 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import { GOOGLE_API_KEY } from '../environment';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
-import { firestore } from '../model/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { auth, firestore } from '../model/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { Feather } from '@expo/vector-icons';
 
 type LocationType = Location.LocationObject | null;
@@ -44,7 +44,13 @@ export default function MapScreen({navigation}:{navigation:any}) {
     })();
 
     const fetchLocations = async () => {
-      const querySnapshot = await getDocs(collection(firestore, 'Memories'));
+      const currentUser = auth.currentUser;
+      if(!currentUser){
+        console.log('No user signed in');
+        return;
+      }
+      const q = query(collection(firestore, 'Memories'), where('email', '==', currentUser.email))
+      const querySnapshot = await getDocs(q);
       const locationsData = querySnapshot.docs.map(doc => ({
         latitude: doc.data().location.latitude,
         longitude: doc.data().location.longitude,

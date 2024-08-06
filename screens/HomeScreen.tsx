@@ -1,13 +1,14 @@
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, SafeAreaView } from 'react-native'
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, SafeAreaView } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { MaterialCommunityIcons, Feather  } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { firestore, auth } from '../model/firebase';
 import { collection, getDocs, query, where, getDoc, doc } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
 
 export default function HomeScreen({navigation} : {navigation: any}) {
-    const [memories, setMemories] = useState<any[]>([])
+    const [memories, setMemories] = useState<any[]>([]);
+    const [searchTerm, setSearchTerm] = useState<string>('');
     const currentUser = auth.currentUser;
     const { state, dispatch } = useUser();
     const { user } = state;
@@ -32,24 +33,43 @@ export default function HomeScreen({navigation} : {navigation: any}) {
             }
         }
         fetchUserData();
-    }, [])
+    }, [dispatch]);
 
-        const fetchMemories = async () => {
-            if(currentUser){
-                const q = query(collection(firestore, 'Memories'), where('email', '==', currentUser.email))
-                const querySnapshot = await getDocs(q);
-                const memoriesData = querySnapshot.docs.map(doc => ({
+    const fetchMemories = async () => {
+        if(currentUser){
+            const q = query(collection(firestore, 'Memories'), where('email', '==', currentUser.email));
+            const querySnapshot = await getDocs(q);
+            const memoriesData = querySnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data(),
             }));
             setMemories(memoriesData);
-            }
-        };
-        useFocusEffect(
-            useCallback(() => {
-                fetchMemories();
-            }, [currentUser])
-        )
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchMemories();
+        }, [currentUser])
+    );
+
+    const handleSearch = async (text: string) => {
+        setSearchTerm(text);
+        if (currentUser) {
+            const q = query(
+                collection(firestore, 'Memories'),
+                where('email', '==', currentUser.email),
+                where('memory', '>=', text),
+                where('memory', '<=', text + '\uf8ff')
+            );
+            const querySnapshot = await getDocs(q);
+            const memoriesData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setMemories(memoriesData);
+        }
+    };
 
     const renderItem = ({item}: {item:any}) => {
         return (
@@ -60,50 +80,55 @@ export default function HomeScreen({navigation} : {navigation: any}) {
         );
     }
 
-  return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.keyContainer}>
-        <View style={styles.header}>
-            <Text style={styles.text}>Merhaba {user?.name}</Text>
-            <MaterialCommunityIcons style={styles.icon} name="hand-wave" size={24} color="black" />
+    return (
+        <View style={styles.container}>
+            <SafeAreaView style={styles.keyContainer}>
+                <View style={styles.header}>
+                    <Text style={styles.text}>Merhaba {user?.name}</Text>
+                    <MaterialCommunityIcons style={styles.icon} name="hand-wave" size={24} color="black" />
+                </View>
+                <TextInput 
+                    style={styles.input} 
+                    placeholder='    Anı Ara' 
+                    value={searchTerm}
+                    onChangeText={handleSearch}
+                />
+                <Text style={styles.text}>Anılar</Text>
+                <View style={styles.buttonView}>
+                    <TouchableOpacity style={styles.button}>
+                        <Text style={styles.buttonText}>Tarihe Göre</Text>
+                    </TouchableOpacity>
+                    <Text>    </Text>
+                    <TouchableOpacity style={styles.button}>
+                        <Text style={styles.buttonText}>Puana Göre</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+            <View style={styles.container1}>
+                <FlatList 
+                    data={memories}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.horizontalList}
+                />
+            </View>
+            <View style={styles.container2}>
+                <View style={styles.tabbar}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Map')}>
+                        <Feather name="map" size={32} color="black"/>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('Camera')}>
+                        <Feather name="camera" size={32} color="black"/>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                        <Feather name="user" size={32} color="black"/>
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
-        <TextInput style={styles.input} placeholder='    Anı Ara'/>
-        <Text style={styles.text}>Anılar</Text>
-        <View style={styles.buttonView}>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Tarihe Göre</Text>
-            </TouchableOpacity>
-            <Text>    </Text>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Puana Göre</Text>
-            </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-      <View style={styles.container1}>
-        <FlatList 
-            data={memories}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            style={styles.horizontalList}
-        />
-      </View>
-      <View style={styles.container2}>
-        <View style={styles.tabbar}>
-            <TouchableOpacity onPress={() => navigation.navigate('Map')}>
-                <Feather name="map" size={32} color="black"/>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Camera')}>
-                <Feather name="camera" size={32} color="black"/>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                <Feather name="user" size={32} color="black"/>
-            </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -182,4 +207,4 @@ const styles = StyleSheet.create({
     horizontalList: {
         paddingHorizontal: 10,
     },
-})
+});

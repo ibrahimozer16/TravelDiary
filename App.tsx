@@ -13,7 +13,6 @@ import ProfileEditScreen from './screens/ProfileEditScreen';
 import ForgetPassword from './screens/ForgetPassword';
 import MemoryScreen from './screens/MemoryScreen';
 import EditScreen from './screens/EditScreen';
-import CameraEditScreen from './screens/CameraEditScreen';
 import { UserProvider } from './context/UserContext';
 
 export default function App() {
@@ -33,7 +32,6 @@ export default function App() {
           <Stack.Screen options={{headerShown: false}} name="ForgetPassword" component={ForgetPassword} />
           <Stack.Screen options={{headerShown: false}} name="Memory" component={MemoryScreen} />
           <Stack.Screen options={{headerShown: false}} name="Edit" component={EditScreen} />
-          <Stack.Screen options={{headerShown: false}} name="CameraEdit" component={CameraEditScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

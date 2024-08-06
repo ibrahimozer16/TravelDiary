@@ -14,19 +14,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "866912837476-978o552em1tscbujkm0pjgssrle5g5uh.apps.googleusercontent.com",
+          "client_id": "866912837476-13gjbkn80qsnoll09ik2i27qcj8vv5q4.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.TravelDiary",
-            "certificate_hash": "b0d3fc49faf3bdd817be0ee16d7369ee0d04f0e4"
+            "certificate_hash": "d9dc1486ebe9f7e402057deacb351f2cc7436372"
           }
         },
         {
-          "client_id": "866912837476-iokvfab3slrc2fh5cpts6n233bq62a5c.apps.googleusercontent.com",
+          "client_id": "866912837476-27h2a626dt9qgbrr39n3suruq3j1u9fp.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.TravelDiary",
-            "certificate_hash": "332ae6fa6c3b78d67998d3dfbd410b08c267c8b5"
+            "certificate_hash": "709b93d080e5b5ceb04d464a99c092e40492a1dc"
           }
         },
         {

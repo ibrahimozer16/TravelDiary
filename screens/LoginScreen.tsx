@@ -6,14 +6,11 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { onGoogleButtonPress } from '../model/auth/GoogleAuth';
 import { signInWithFB } from '../model/auth/FacebookAuth';
 import { useUser } from '../context/UserContext';
-// import { useGoogleAuth } from '../model/GoogleAuth';
 
 export default function LoginScreen({navigation} : {navigation: any}) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { state, dispatch } = useUser();
-    
-    // const { promptAsync } = useGoogleAuth();
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
