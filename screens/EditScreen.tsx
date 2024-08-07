@@ -2,7 +2,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, Flat
 import React, { useReducer, useState } from 'react';
 import { firestore, storage } from '../model/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
@@ -17,6 +17,8 @@ export default function EditScreen({ route, navigation }: { route: any, navigati
         return { ...state, memory: action.payload };
       case 'setImage':
         return { ...state, imageUrl: [...state.imageUrl, action.payload] };
+      case 'removeImage':
+        return { ...state, imageUrl: state.imageUrl.filter((url: string) => url !== action.payload) };
       default:
         return state;
     }
@@ -92,7 +94,7 @@ export default function EditScreen({ route, navigation }: { route: any, navigati
     } catch (error) {
       console.log(error);
       setUploading(false);
-      alert('Upload failed, sorry :(');
+      alert('Upload failed');
     }
   };
 
@@ -101,13 +103,24 @@ export default function EditScreen({ route, navigation }: { route: any, navigati
       const memoryDocRef = doc(firestore, 'Memories', memory.id);
       await updateDoc(memoryDocRef, {
         memory: state.memory,
-        imageUrl: state.imageUrl[0], // assuming single image
+        imageUrl: state.imageUrl,
       });
       alert('Memory updated successfully!');
-      navigation.navigate('Memory', { memory: { ...memory, memory: state.memory, imageUrl: state.imageUrl[0] } });
+      navigation.navigate('Memory', { memory: { ...memory, memory: state.memory, imageUrl: state.imageUrl } });
     } catch (error) {
       console.error('Error updating memory: ', error);
       alert('Failed to update memory');
+    }
+  };
+
+  const handleDeleteImage = async (imageUrl: string) => {
+    try {
+      const imageRef = ref(storage, imageUrl);
+      await deleteObject(imageRef);
+      dispatch({ type: 'removeImage', payload: imageUrl });
+    } catch (error) {
+      console.error('Error deleting image: ', error);
+      Alert.alert('Error', 'Fotoğrafı silerken bir hata oluştu.');
     }
   };
 
@@ -129,7 +142,20 @@ export default function EditScreen({ route, navigation }: { route: any, navigati
         </View>
       </View>
       <View style={styles.container1}>
-        <Image source={{ uri: memory.imageUrl }} style={styles.image} />
+        <FlatList
+            data={state.imageUrl}
+            renderItem={({ item }) => (
+              <View style={styles.imageContainer}>
+                <Image source={{ uri: item }} style={styles.image} />
+                <TouchableOpacity onPress={() => handleDeleteImage(item)} style={styles.deleteIcon}>
+                  <AntDesign name="closecircle" size={24} color="black" />
+                </TouchableOpacity>
+              </View>
+            )}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+        />
       </View>
       <View style={styles.container2}>
         <Text style={styles.text}>Anılar</Text>
@@ -180,10 +206,20 @@ const styles = StyleSheet.create({
     add1: {
       marginTop: 20,
     },
+    imageContainer: {
+      position: 'relative',
+      marginRight: 10,
+    },
     image: {
       flex: 1,
       width: 250,
       borderRadius: 10,
+      marginHorizontal: 5,
+    },
+    deleteIcon: {
+      position: 'absolute',
+      top: 5,
+      right: 10,
     },
     horizontalList: {
       paddingHorizontal: 10,

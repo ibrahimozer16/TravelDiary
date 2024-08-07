@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, SafeAreaView } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { firestore, auth } from '../model/firebase';
@@ -15,7 +15,6 @@ export default function HomeScreen({navigation} : {navigation: any}) {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const currentUser = auth.currentUser;
             if(currentUser){
                 const userDoc = await getDoc(doc(firestore, 'Users', currentUser.uid));
                 if(userDoc.exists()){
@@ -55,19 +54,18 @@ export default function HomeScreen({navigation} : {navigation: any}) {
 
     const handleSearch = async (text: string) => {
         setSearchTerm(text);
-        if (currentUser) {
-            const q = query(
-                collection(firestore, 'Memories'),
-                where('email', '==', currentUser.email),
-                where('memory', '>=', text),
-                where('memory', '<=', text + '\uf8ff')
-            );
-            const querySnapshot = await getDocs(q);
-            const memoriesData = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            setMemories(memoriesData);
+
+        if (text.trim() === '') {
+            fetchMemories();
+        } else {
+            const searchTermLower = text.toLowerCase().trim();
+            console.log('Search Term:', searchTermLower);
+            const filteredMemories = memories.filter(memory => {
+                const cityLower = memory.location.city.toLowerCase();
+                return cityLower.includes(searchTermLower);
+            });
+            console.log('Filtered Memories:', filteredMemories);
+            setMemories(filteredMemories);
         }
     };
 
@@ -81,8 +79,12 @@ export default function HomeScreen({navigation} : {navigation: any}) {
     }
 
     return (
-        <View style={styles.container}>
-            <SafeAreaView style={styles.keyContainer}>
+        <KeyboardAvoidingView 
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+        >
+            <View style={styles.keyContainer}>
                 <View style={styles.header}>
                     <Text style={styles.text}>Merhaba {user?.name}</Text>
                     <MaterialCommunityIcons style={styles.icon} name="hand-wave" size={24} color="black" />
@@ -103,7 +105,7 @@ export default function HomeScreen({navigation} : {navigation: any}) {
                         <Text style={styles.buttonText}>Puana Göre</Text>
                     </TouchableOpacity>
                 </View>
-            </SafeAreaView>
+            </View>
             <View style={styles.container1}>
                 <FlatList 
                     data={memories}
@@ -127,7 +129,7 @@ export default function HomeScreen({navigation} : {navigation: any}) {
                     </TouchableOpacity>
                 </View>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 

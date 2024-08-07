@@ -16,14 +16,13 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
     const [showPassword, setShowPassword] = useState(false);
     const [name, setName] = useState(user?.name || '');
     const [surname, setSurname] = useState(user?.surname || '');
-    const [oldPassword, setOldPassword] = useState('');
+    const [oldPassword, setOldPassword] = useState(user?.password || '');
     const [newPassword, setNewPassword] = useState('');
     const [profileImage, setProfileImage] = useState<string | null>(user?.profileImage || null);
-
+    const currentUser = auth.currentUser;
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const currentUser = auth.currentUser;
             if(currentUser){
                 const userDoc = await getDoc(doc(firestore, 'Users', currentUser.uid));
                 if(userDoc.exists()){
@@ -40,6 +39,7 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
                     })
                     setName(userData.name || '');
                     setSurname(userData.surname || '');
+                    setOldPassword(userData.oldPassword || '');
                     setProfileImage(userData.imageProfile || null);
                 }
             }
@@ -49,7 +49,6 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
 
     const handleSave = async () => {
         try {
-            const currentUser = auth.currentUser;
             if(currentUser && oldPassword && newPassword){
                 const credential = EmailAuthProvider.credential(currentUser.email ?? '', oldPassword);
                 await reauthenticateWithCredential(currentUser, credential);
@@ -135,7 +134,6 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
 
     const handleImagePicked = async (uri: string) => {
         try {
-          const currentUser = auth.currentUser;
           if (currentUser) {
             const response = await fetch(uri);
             const blob = await response.blob();

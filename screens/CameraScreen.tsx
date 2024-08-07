@@ -1,4 +1,4 @@
-import { Camera, CameraType, useCameraPermissions, CameraCapturedPicture, CameraView } from 'expo-camera';
+import { CameraType, useCameraPermissions, CameraCapturedPicture, CameraView } from 'expo-camera';
 import { useRef, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, TextInput, ImageBackground } from 'react-native';
 import { MaterialIcons, AntDesign, Entypo } from '@expo/vector-icons';
@@ -88,7 +88,7 @@ export default function CameraScreen({navigation} : {navigation:any}) {
   }
 
   const savePhoto = async () => {
-    if(photo && location && memory && city){
+    if(photo && location && memory ){
       setUploading(true);
       try {
         const imageUrl = await uploadImage(photo.uri);

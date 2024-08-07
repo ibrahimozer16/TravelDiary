@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { GOOGLE_API_KEY } from '../environment';
 import Constants from 'expo-constants';
@@ -90,6 +90,7 @@ export default function MapScreen({navigation}:{navigation:any}) {
           />
         ))}
       </MapView>
+
       <View style={styles.searchContainer}>
         <GooglePlacesAutocomplete
           placeholder="Search"

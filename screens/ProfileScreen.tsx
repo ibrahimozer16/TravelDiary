@@ -1,21 +1,21 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AntDesign, MaterialIcons, Entypo } from '@expo/vector-icons';
 import { useUser } from '../context/UserContext';
 import { auth, firestore } from '../model/firebase'
 import { doc, getDoc } from 'firebase/firestore'
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
+import { LoginManager } from 'react-native-fbsdk-next';
 
 
 export default function ProfileScreen({navigation} : {navigation: any}) {
     const { state, dispatch } = useUser();
     const { user } = state;
     const [showPassword, setShowPassword] = useState(false);
+    const currentUser = auth.currentUser;
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const currentUser = auth.currentUser;
             if(currentUser){
                 const userDoc = await getDoc(doc(firestore, 'Users', currentUser.uid));
                 if(userDoc.exists()){
@@ -37,7 +37,6 @@ export default function ProfileScreen({navigation} : {navigation: any}) {
 
     const handleSignOut = async () => {
         try {
-            const currentUser = auth.currentUser;
             const isSignedInWithGoogle = currentUser?.providerData.some(
                 (provider) => provider.providerId === 'google.com'
             )
