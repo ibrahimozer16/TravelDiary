@@ -6,8 +6,10 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
+import { useTranslation } from 'react-i18next';
 
 export default function EditScreen({ route, navigation }: { route: any, navigation: any }) {
+  const {t} = useTranslation();
   const { memory } = route.params || {};
   const initialState = { memory: memory.memory, imageUrl: memory.imageUrl ? [memory.imageUrl] : [] };
 
@@ -29,19 +31,19 @@ export default function EditScreen({ route, navigation }: { route: any, navigati
 
   const addPhoto = () => {
     Alert.alert(
-      "Add Photo",
-      "Choose an option",
+      t('addPhoto'),
+      t('chooseAnOption'),
       [
         {
-          text: "Camera",
+          text: t('camera'),
           onPress: openCamera,
         },
         {
-          text: "Gallery",
+          text: t('gallery'),
           onPress: selectImage,
         },
         {
-          text: "Cancel",
+          text: t('cancel'),
           style: "cancel"
         }
       ],
@@ -135,7 +137,7 @@ export default function EditScreen({ route, navigation }: { route: any, navigati
         <Text style={styles.location}>{memory.location.city}</Text>
         <Text style={styles.date}>{new Date(memory.timestamp.seconds * 1000).toLocaleDateString()}</Text>
         <View style={styles.add}>
-          <Text style={styles.text}>Fotoğraflar</Text>
+          <Text style={styles.text}>{t('photos')}</Text>
           <TouchableOpacity onPress={addPhoto}>
             <Entypo name="plus" size={24} color="black" style={styles.add1} />
           </TouchableOpacity>
@@ -158,14 +160,14 @@ export default function EditScreen({ route, navigation }: { route: any, navigati
         />
       </View>
       <View style={styles.container2}>
-        <Text style={styles.text}>Anılar</Text>
+        <Text style={styles.text}>{t('memories')}</Text>
         <TextInput
           style={styles.memory}
           value={state.memory}
           onChangeText={(memory) => dispatch({ type: 'setText', payload: memory })}
         />
         <TouchableOpacity style={styles.button} onPress={saveEdit}>
-          <Text style={styles.buttonText}>{uploading ? 'Kaydediliyor...' : 'Kaydet'}</Text>
+          <Text style={styles.buttonText}>{uploading ? t('saving') : t('save')}</Text>
         </TouchableOpacity>
       </View>
     </View>

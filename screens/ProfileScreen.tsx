@@ -6,9 +6,11 @@ import { auth, firestore } from '../model/firebase'
 import { doc, getDoc } from 'firebase/firestore'
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { LoginManager } from 'react-native-fbsdk-next';
+import { useTranslation } from 'react-i18next';
 
 
 export default function ProfileScreen({navigation} : {navigation: any}) {
+    const {t} = useTranslation();
     const { state, dispatch } = useUser();
     const { user } = state;
     const [showPassword, setShowPassword] = useState(false);
@@ -78,19 +80,19 @@ export default function ProfileScreen({navigation} : {navigation: any}) {
                     <MaterialIcons name="edit" size={24} color="black" />
                 </TouchableOpacity>
             </View>
-            <Text style={styles.text1}>Profil</Text>
+            <Text style={styles.text1}>{t('profile')}</Text>
             <Image style={styles.image} source={user?.profileImage ? { uri: user.profileImage } : require('../assets/avatar.png')}/>
         </View>
         <View style={styles.inputContainer}>
             {user ? (
                 <>
-                    <Text style={styles.text2}>Ad</Text>
+                    <Text style={styles.text2}>{t('name')}</Text>
                     <Text style={styles.input}>{user.name}</Text>
-                    <Text style={styles.text2}>Soyad</Text>
+                    <Text style={styles.text2}>{t('surname')}</Text>
                     <Text style={styles.input}>{user.surname}</Text>
-                    <Text style={styles.text2}>Email</Text>
+                    <Text style={styles.text2}>{t('email')}</Text>
                     <Text style={styles.input}>{user.email}</Text>
-                    <Text style={styles.text2}>Şifre</Text>
+                    <Text style={styles.text2}>{t('password')}</Text>
                     <View style={styles.passwordContainer}>
                         <TextInput
                             style={styles.passwordInput}
@@ -104,14 +106,14 @@ export default function ProfileScreen({navigation} : {navigation: any}) {
                     </View>
                 </>
             ):(
-                <Text style={styles.errorText}>Kullanıcı bilgileri bulunamadı</Text>
+                <Text style={styles.errorText}>{t('noUser')}</Text>
             )}
         </View>
         <View style={styles.container1}>
             <TouchableOpacity 
                 style={styles.button} 
                 onPress={handleSignOut}>
-                <Text style={styles.buttonText}>Çıkış Yap</Text>
+                <Text style={styles.buttonText}>{t('logout')}</Text>
             </TouchableOpacity>
         </View>
     </KeyboardAvoidingView>

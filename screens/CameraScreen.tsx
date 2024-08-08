@@ -6,8 +6,10 @@ import * as Location from 'expo-location';
 import { firestore, storage, auth } from '../model/firebase';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 
 export default function CameraScreen({navigation} : {navigation:any}) {
+  const {t} = useTranslation();
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
@@ -24,7 +26,7 @@ export default function CameraScreen({navigation} : {navigation:any}) {
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <Text style={styles.message}>{t('cameraGranted')}</Text>
         <Button onPress={requestPermission} title="grant permission" />
       </View>
     );
@@ -130,6 +132,8 @@ export default function CameraScreen({navigation} : {navigation:any}) {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   }
 
+  
+
   return (
     <View style={styles.container}>
       {photo ? (
@@ -141,17 +145,18 @@ export default function CameraScreen({navigation} : {navigation:any}) {
               <View style={styles.inputs}>
                 <View style={styles.inputContainer}>
                   <TouchableOpacity style={styles.button} onPress={getLocation}>
-                    <Text style={styles.text}><MaterialIcons name="location-on" size={18} color="white" /> Konum Ekle</Text>
+                    <Text style={styles.text}><MaterialIcons name="location-on" size={18} color="white" />{t('addLocation')}</Text>
                   </TouchableOpacity>
                   <TextInput 
                     style={styles.input}
-                    placeholder='Anı Ekle'
+                    placeholder={t('addMemory')}
+                    placeholderTextColor='white'
                     onChangeText={setMemory}
                     value={memory}
                   />
                 </View>
                 <TouchableOpacity style={styles.buttonSave} onPress={savePhoto} disabled={uploading}>
-                  <Text style={styles.saveText}>{uploading ? 'Kaydediliyor...' : 'Kaydet'}</Text>
+                  <Text style={styles.saveText}>{uploading ? t('saving') : t('save')}</Text>
                 </TouchableOpacity>
               </View>
             </ImageBackground>
@@ -160,13 +165,13 @@ export default function CameraScreen({navigation} : {navigation:any}) {
         <CameraView style={styles.camera} ref={cameraRef} facing={facing}>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-              <Text style={styles.text}><MaterialIcons name="flip-camera-android" size={32} color="black" /></Text>
+              <Text style={styles.text}><MaterialIcons name="flip-camera-android" size={32} color="white" /></Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={takePicture}>
-              <Text style={styles.text}><Entypo name="circle" size={40} color="black" /></Text>
+              <Text style={styles.text}><Entypo name="circle" size={40} color="white" /></Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
-              <Text style={styles.text}><AntDesign name="left" size={32} color="black" /></Text>
+              <Text style={styles.text}><AntDesign name="left" size={32} color="white" /></Text>
             </TouchableOpacity>
           </View>
         </CameraView>

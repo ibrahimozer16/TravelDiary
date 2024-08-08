@@ -6,6 +6,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { onGoogleButtonPress } from '../model/auth/GoogleAuth';
 import { signInWithFB } from '../model/auth/FacebookAuth';
 import { useUser } from '../context/UserContext';
+import { useTranslation } from 'react-i18next';
 
 export default function LoginScreen({navigation} : {navigation: any}) {
     const [email, setEmail] = useState('');
@@ -64,6 +65,8 @@ export default function LoginScreen({navigation} : {navigation: any}) {
         navigation.navigate('ForgetPassword')
     }
 
+    const {t} = useTranslation();
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -71,39 +74,39 @@ export default function LoginScreen({navigation} : {navigation: any}) {
             <AntDesign name="arrowleft" size={24} color="black" />
         </TouchableOpacity>
         <Image style={styles.image} source={require('../assets/dunya.png')}/>
-        <Text style={styles.text}>Gezi Günlüğü</Text>
-        <Text style={styles.text1}>Giriş Yap</Text>
+        <Text style={styles.text}>{t('travelDiary')}</Text>
+        <Text style={styles.text1}>{t('login')}</Text>
       </View>
       <KeyboardAvoidingView style={styles.inputContainer}>
-        <Text style={styles.text2}>Email</Text>
+        <Text style={styles.text2}>{t('email')}</Text>
         <TextInput 
             style={styles.input} 
             value={email}
             onChangeText={setEmail}
             keyboardType='email-address'/>
-        <Text style={styles.text2}>Şifre</Text>
+        <Text style={styles.text2}>{t('password')}</Text>
         <TextInput 
             style={styles.input} 
             value={password}
             onChangeText={setPassword}
             secureTextEntry/>
         <TouchableOpacity onPress={forgetPassword}>
-            <Text style={styles.text3}>Şifremi Unuttum</Text>
+            <Text style={styles.text3}>{t('forgotPassword')}</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
       <View style={styles.container1}>
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Giriş Yap</Text>
+            <Text style={styles.buttonText}>{t('login')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button1} onPress={handleSignUp}>
-            <Text>Bir Hesabım Yok</Text>
+            <Text>{t('noAccount')}</Text>
         </TouchableOpacity>
-        <Text style={styles.text4}>------------------  ya da  ------------------</Text>
+        <Text style={styles.text4}>------------------  {t('or')}  ------------------</Text>
         <TouchableOpacity style={styles.button2} onPress={() => onGoogleButtonPress(dispatch, navigation)}>
-            <Text style={styles.buttonText}>Google ile Giriş Yap</Text>
+            <Text style={styles.buttonText}>{t('signInWithGoogle')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button3} onPress={() => signInWithFB(dispatch, navigation)}>
-            <Text style={styles.buttonText}>Facebook ile Giriş Yap</Text>
+            <Text style={styles.buttonText}>{t('signInWithFacebook')}</Text>
         </TouchableOpacity>
       </View>
     </View>

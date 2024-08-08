@@ -14,6 +14,7 @@ import ForgetPassword from './screens/ForgetPassword';
 import MemoryScreen from './screens/MemoryScreen';
 import EditScreen from './screens/EditScreen';
 import { UserProvider } from './context/UserContext';
+import './languages/i18n.config';
 
 export default function App() {
   const Stack = createNativeStackNavigator();

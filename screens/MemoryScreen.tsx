@@ -4,8 +4,10 @@ import { AntDesign, MaterialIcons, Feather } from '@expo/vector-icons';
 import { firestore, storage } from '../model/firebase';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
+import { useTranslation } from 'react-i18next';
 
 export default function MemoryScreen({ route, navigation }: { route: any, navigation: any }) {
+  const {t} = useTranslation();
   const { memory } = route.params;
 
   const handleDelete = async () => {
@@ -54,13 +56,13 @@ export default function MemoryScreen({ route, navigation }: { route: any, naviga
         </View>
         <Text style={styles.location}>{memory.location.city}</Text>
         <Text style={styles.date}>{new Date(memory.timestamp.seconds * 1000).toLocaleDateString()}</Text>
-        <Text style={styles.text}>Fotoğraflar</Text>
+        <Text style={styles.text}>{t('photos')}</Text>
       </View>
       <View style={styles.container1}>
         <Image source={{ uri: memory.imageUrl }} style={styles.image} />
       </View>
       <View style={styles.container2}>
-        <Text style={styles.text}>Anılar</Text>
+        <Text style={styles.text}>{t('memories')}</Text>
         <Text style={styles.memory}>{memory.memory}</Text>
       </View>
     </View>

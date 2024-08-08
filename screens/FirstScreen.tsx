@@ -1,13 +1,33 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function FirstScreen({navigation} : {navigation: any}) {
-  return (
+  
+    const {t, i18n} = useTranslation();
+
+    const languageTr = () => {
+        i18n.changeLanguage('tr');
+    }
+
+    const languageEn = () => {
+        i18n.changeLanguage('en');
+    }
+
+    const languageDe = () => {
+        i18n.changeLanguage('de');
+    }
+
+    const languageSp = () => {
+        i18n.changeLanguage('sp');
+    }
+ 
+    return (
     <View style={styles.container}>
         <View style={styles.header}>
-            <Text style={styles.text2}>Hoşgeldiniz</Text>
+            <Text style={styles.text2}>{t('welcome')}</Text>
             <Image style={styles.image} source={require('../assets/dunya.png')}/>
-            <Text style={styles.text}>Gezi Günlüğü</Text>
+            <Text style={styles.text}>{t('travelDiary')}</Text>
         </View>
         <View style={styles.inputContainer}>
             <Image style={styles.image1} source={require('../assets/camera.png')}/>
@@ -16,11 +36,25 @@ export default function FirstScreen({navigation} : {navigation: any}) {
         </View>
         <View style={styles.container1}>
             <TouchableOpacity style={styles.button1} onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.buttonText}>Giriş Yap</Text>
+                <Text style={styles.buttonText}>{t('login')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SignUp')}>
-                <Text style={styles.buttonText}>Kayıt Ol</Text>
+                <Text style={styles.buttonText}>{t('signup')}</Text>
             </TouchableOpacity>
+            <View style={styles.lng}>
+                <TouchableOpacity style={styles.buttons} onPress={languageTr}>
+                    <Text>TR</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttons} onPress={languageEn}>
+                    <Text>EN</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttons} onPress={languageDe}>
+                    <Text>DE</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttons} onPress={languageSp}>
+                    <Text>SP</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     </View>
   )
@@ -60,7 +94,8 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 35,
         fontWeight: 'bold',
-        width: '60%',
+        width: '70%',
+        textAlign: 'center',
     },
     text1: {
         fontSize: 35,
@@ -96,4 +131,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         fontSize: 18,
     },
+    buttons: {
+        borderWidth: 1,
+        borderRadius: 10,
+        width: '20%',
+        alignItems: 'center'
+    },
+    lng: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignSelf: 'center',
+        margin: 20,
+        width: '60%',
+    }
 })

@@ -5,6 +5,7 @@ import { firestore, auth } from '../model/firebase';
 import { collection, getDocs, query, where, getDoc, doc } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
+import { useTranslation } from 'react-i18next';
 
 export default function HomeScreen({navigation} : {navigation: any}) {
     const [memories, setMemories] = useState<any[]>([]);
@@ -78,6 +79,8 @@ export default function HomeScreen({navigation} : {navigation: any}) {
         );
     }
 
+    const {t} = useTranslation();
+
     return (
         <KeyboardAvoidingView 
             style={styles.container}
@@ -86,23 +89,23 @@ export default function HomeScreen({navigation} : {navigation: any}) {
         >
             <View style={styles.keyContainer}>
                 <View style={styles.header}>
-                    <Text style={styles.text}>Merhaba {user?.name}</Text>
+                    <Text style={styles.text}>{t('hello')} {user?.name}</Text>
                     <MaterialCommunityIcons style={styles.icon} name="hand-wave" size={24} color="black" />
                 </View>
                 <TextInput 
                     style={styles.input} 
-                    placeholder='    Anı Ara' 
+                    placeholder={t('searchMemory')} 
                     value={searchTerm}
                     onChangeText={handleSearch}
                 />
-                <Text style={styles.text}>Anılar</Text>
+                <Text style={styles.text}>{t('memories')}</Text>
                 <View style={styles.buttonView}>
                     <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Tarihe Göre</Text>
+                        <Text style={styles.buttonText}>{t('byDate')}</Text>
                     </TouchableOpacity>
                     <Text>    </Text>
                     <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Puana Göre</Text>
+                        <Text style={styles.buttonText}>{t('byScore')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>

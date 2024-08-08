@@ -8,6 +8,7 @@ import * as Location from 'expo-location';
 import { auth, firestore } from '../model/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 type LocationType = Location.LocationObject | null;
 type LocationType1 = {
@@ -61,6 +62,7 @@ export default function MapScreen({navigation}:{navigation:any}) {
     fetchLocations();
   }, []);
   
+  const {t} = useTranslation();
 
   return (
     <View style={styles.container}>
@@ -76,7 +78,7 @@ export default function MapScreen({navigation}:{navigation:any}) {
               latitude: location.coords.latitude,
               longitude: location.coords.longitude,
             }}
-            title="Mevcut Konum"
+            title={t('currentLocation')}
           />
         )}
         {locations.map((loc, index) => (
@@ -93,7 +95,7 @@ export default function MapScreen({navigation}:{navigation:any}) {
 
       <View style={styles.searchContainer}>
         <GooglePlacesAutocomplete
-          placeholder="Search"
+          placeholder={t('searchLocation')}
           onPress={(data, details = null) => {
             console.log(data, details);
             if (details) {

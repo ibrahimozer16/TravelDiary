@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { AntDesign } from '@expo/vector-icons';
 import { auth } from '../model/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { useTranslation } from 'react-i18next';
 
 
 export default function ForgetPassword({navigation} : {navigation: any}) {
@@ -15,6 +16,7 @@ export default function ForgetPassword({navigation} : {navigation: any}) {
         .catch((error: any) => console.log(error.message))
     }
 
+    const {t} = useTranslation();
 
   return (
     <View style={styles.container}>
@@ -23,11 +25,11 @@ export default function ForgetPassword({navigation} : {navigation: any}) {
             <AntDesign name="arrowleft" size={24} color="black" />
         </TouchableOpacity>
         <Image style={styles.image} source={require('../assets/dunya.png')}/>
-        <Text style={styles.text}>Gezi Günlüğü</Text>
-        <Text style={styles.text1}>Şifre Sıfırlama</Text>
+        <Text style={styles.text}>{t('travelDiary')}</Text>
+        <Text style={styles.text1}>{t('resetPassword')}</Text>
       </View>
       <SafeAreaView style={styles.inputContainer}>
-        <Text style={styles.text2}>Email</Text>
+        <Text style={styles.text2}>{t('email')}</Text>
         <TextInput 
             style={styles.input} 
             value={email}
@@ -36,7 +38,7 @@ export default function ForgetPassword({navigation} : {navigation: any}) {
       </SafeAreaView>
       <View style={styles.container1}>
         <TouchableOpacity style={styles.button} onPress={handlePassword}>
-            <Text style={styles.buttonText}>Şifreyi Sıfırla</Text>
+            <Text style={styles.buttonText}>{t('resetPassword')}</Text>
         </TouchableOpacity>
       </View>
     </View>

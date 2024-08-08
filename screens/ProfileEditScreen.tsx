@@ -8,9 +8,11 @@ import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { useTranslation } from 'react-i18next';
 
 
 export default function ProfileEditScreen({navigation} : {navigation: any}) {
+    const {t} = useTranslation();
     const { state, dispatch } = useUser();
     const { user } = state;
     const [showPassword, setShowPassword] = useState(false);
@@ -82,19 +84,19 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
     }
     const addPhoto = () => {
         Alert.alert(
-            "Add Photo",
-            "Choose an option",
+            t('addPhoto'),
+            t('chooseAnOption'),
             [
               {
-                text: "Camera",
+                text: t('camera'),
                 onPress: openCamera,
               },
               {
-                text: "Gallery",
+                text: t('gallery'),
                 onPress: selectImage,
               },
               {
-                text: "Cancel",
+                text: t('cancel'),
                 style: "cancel"
               }
             ],
@@ -157,39 +159,39 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
             <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('Profile')}>
                 <AntDesign name="arrowleft" size={24} color="black" />
             </TouchableOpacity>
-            <Text style={styles.text1}>Profil</Text>
+            <Text style={styles.text1}>{t('profile')}</Text>
             <TouchableOpacity onPress={addPhoto}>
                 <Image style={styles.image} source={profileImage ? { uri: profileImage } : require('../assets/avatar.png')}/>
             </TouchableOpacity>
         </View>
         <SafeAreaView style={styles.inputContainer}>
-            <Text style={styles.text2}>Ad</Text>
+            <Text style={styles.text2}>{t('name')}</Text>
             <TextInput 
                 style={styles.input}
                 value={name}
                 onChangeText={setName}
             />
-            <Text style={styles.text2}>Soyad</Text>
+            <Text style={styles.text2}>{t('surname')}</Text>
             <TextInput 
                 style={styles.input}
                 value={surname}
                 onChangeText={setSurname}
             />
-            <Text style={styles.text2}>Email</Text>
+            <Text style={styles.text2}>{t('email')}</Text>
             <TextInput 
                 style={styles.input} 
                 value={user?.email ?? ''}
                 editable= {false}
                 keyboardType='email-address'
             />
-            <Text style={styles.text2}>Eski Şifre</Text>
+            <Text style={styles.text2}>{t('oldPassword')}</Text>
             <TextInput
                 style={styles.input}
                 value={oldPassword}
                 onChangeText={setOldPassword}
                 secureTextEntry={!showPassword}
             />
-            <Text style={styles.text2}>Yeni Şifre</Text>
+            <Text style={styles.text2}>{t('newPassword')}</Text>
             <TextInput
                 style={styles.input}
                 value={newPassword}
@@ -197,12 +199,12 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
                 secureTextEntry={!showPassword}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Text>{showPassword ? 'Şifreyi Gizle' : 'Şifreyi Göster'}</Text>
+                <Text>{showPassword ? t('hidePassword') : t('showPassword')}</Text>
             </TouchableOpacity>
         </SafeAreaView>
         <View style={styles.container1}>
             <TouchableOpacity style={styles.button} onPress={handleSave}>
-                <Text style={styles.buttonText}>Kaydet</Text>
+                <Text style={styles.buttonText}>{t('save')}</Text>
             </TouchableOpacity>
         </View>
     </KeyboardAvoidingView>

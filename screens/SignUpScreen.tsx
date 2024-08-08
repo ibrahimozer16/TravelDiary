@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, firestore } from '../model/firebase'
 import { useUser } from '../context/UserContext';
 import { setDoc, doc } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 
 export default function SignUpScreen({navigation} : {navigation: any}) {
 
@@ -73,6 +74,8 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
         navigation.navigate('Login');
     }
 
+    const {t} = useTranslation();
+
   return (
     <KeyboardAvoidingView 
         style={styles.container}
@@ -83,30 +86,30 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
                 <AntDesign name="arrowleft" size={24} color="black" />
             </TouchableOpacity>
             <Image style={styles.image} source={require('../assets/dunya.png')}/>
-            <Text style={styles.text}>Gezi Günlüğü</Text>
-            <Text style={styles.text1}>Giriş Yap</Text>
+            <Text style={styles.text}>{t('travelDiary')}</Text>
+            <Text style={styles.text1}>{t('login')}</Text>
         </View>
         <SafeAreaView style={styles.inputContainer}>
-            <Text style={styles.text2}>Ad</Text>
+            <Text style={styles.text2}>{t('name')}</Text>
             <TextInput 
                 style={styles.input}
                 value={state.name}
                 onChangeText={(text) => dispatchLocal({type: 'setName', payload: text})}
             />
-            <Text style={styles.text2}>Soyad</Text>
+            <Text style={styles.text2}>{t('surname')}</Text>
             <TextInput 
                 style={styles.input}
                 value={state.surname}
                 onChangeText={(text) => dispatchLocal({type: 'setSurname', payload: text})}
             />
-            <Text style={styles.text2}>Email</Text>
+            <Text style={styles.text2}>{t('email')}</Text>
             <TextInput 
                 style={styles.input} 
                 value={state.email}
                 onChangeText={(text) => dispatchLocal({type: 'setEmail', payload: text})}
                 keyboardType='email-address'
             />
-            <Text style={styles.text2}>Şifre</Text>
+            <Text style={styles.text2}>{t('password')}</Text>
             <TextInput 
                 style={styles.input} 
                 value={state.password}
@@ -116,10 +119,10 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
         </SafeAreaView>
         <View style={styles.container1}>
             <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-                <Text style={styles.buttonText}>Kayıt Ol</Text>
+                <Text style={styles.buttonText}>{t('signup')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button1} onPress={returnLogin}>
-                <Text>Zaten Bir Hesabım Var</Text>
+                <Text>{t('haveAccount')}</Text>
             </TouchableOpacity>
         </View>
     </KeyboardAvoidingView>
