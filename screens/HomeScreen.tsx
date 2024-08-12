@@ -1,15 +1,17 @@
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
 import { firestore, auth } from '../model/firebase';
-import { collection, getDocs, query, where, getDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, query, where, getDoc, doc, orderBy } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
 import { useTranslation } from 'react-i18next';
 
 export default function HomeScreen({navigation} : {navigation: any}) {
+    const {t} = useTranslation();
     const [memories, setMemories] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
+    const [isNewestFirst, setIsNewestFirst] = useState(true);
     const currentUser = auth.currentUser;
     const { state, dispatch } = useUser();
     const { user } = state;
@@ -37,7 +39,11 @@ export default function HomeScreen({navigation} : {navigation: any}) {
 
     const fetchMemories = async () => {
         if(currentUser){
-            const q = query(collection(firestore, 'Memories'), where('email', '==', currentUser.email));
+            const q = query(
+                collection(firestore, 'Memories'), 
+                where('email', '==', currentUser.email),
+                // orderBy('timestamp', 'desc'),
+            );
             const querySnapshot = await getDocs(q);
             const memoriesData = querySnapshot.docs.map(doc => ({
                 id: doc.id,
@@ -62,8 +68,8 @@ export default function HomeScreen({navigation} : {navigation: any}) {
             const searchTermLower = text.toLowerCase().trim();
             console.log('Search Term:', searchTermLower);
             const filteredMemories = memories.filter(memory => {
-                const cityLower = memory.location.city.toLowerCase();
-                return cityLower.includes(searchTermLower);
+                const titleLower = memory.title.toLowerCase();
+                return titleLower.includes(searchTermLower);
             });
             console.log('Filtered Memories:', filteredMemories);
             setMemories(filteredMemories);
@@ -74,12 +80,47 @@ export default function HomeScreen({navigation} : {navigation: any}) {
         return (
             <TouchableOpacity style={styles.itemContainer} onPress={() => navigation.navigate('Memory', { memory: item })}>
                 <Image source={{ uri: item.imageUrl }} style={styles.image}/>
-                <Text style={styles.cityText}>{item.location.city}</Text>
+                <View style={styles.info}>
+                    <Text style={styles.cityText}>{item.title}, {item.location.city}</Text>
+                    <Text style={styles.cityText}>{<AntDesign name="star" size={14} color="black" />}{item.score}</Text>
+                </View>
             </TouchableOpacity>
         );
     }
 
-    const {t} = useTranslation();
+    const byDate = async () => {
+        if (currentUser) {
+            const q = query(
+                collection(firestore, 'Memories'),
+                where('email', '==', currentUser.email),
+                orderBy('timestamp', isNewestFirst ? 'desc' : 'asc')
+            );
+            const querySnapshot = await getDocs(q);
+            const sortedMemories = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setMemories(sortedMemories);
+            setIsNewestFirst(!isNewestFirst);
+        }
+    }
+
+    const byScore = async () => {
+        if(currentUser) {
+            const q = query(
+                collection(firestore, 'Memories'),
+                where('email', '==', currentUser.email),
+                orderBy('score', isNewestFirst ? 'desc': 'asc')
+            );
+            const querySnapshot = await getDocs(q);
+            const sortedMemories = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setMemories(sortedMemories);
+            setIsNewestFirst(!isNewestFirst);
+        }
+    }
 
     return (
         <KeyboardAvoidingView 
@@ -100,11 +141,11 @@ export default function HomeScreen({navigation} : {navigation: any}) {
                 />
                 <Text style={styles.text}>{t('memories')}</Text>
                 <View style={styles.buttonView}>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button} onPress={byDate}>
                         <Text style={styles.buttonText}>{t('byDate')}</Text>
                     </TouchableOpacity>
                     <Text>    </Text>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button} onPress={byScore}>
                         <Text style={styles.buttonText}>{t('byScore')}</Text>
                     </TouchableOpacity>
                 </View>
@@ -208,6 +249,11 @@ const styles = StyleSheet.create({
     cityText: {
         marginVertical: 8,
         fontSize: 16,
+    },
+    info: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: 220,
     },
     horizontalList: {
         paddingHorizontal: 10,

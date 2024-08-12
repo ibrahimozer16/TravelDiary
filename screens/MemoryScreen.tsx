@@ -15,20 +15,20 @@ export default function MemoryScreen({ route, navigation }: { route: any, naviga
       await deleteDoc(doc(firestore, 'Memories', memory.id));
       const imageRef = ref(storage, memory.imageUrl);
       await deleteObject(imageRef);
-      navigation.navigate('Home');
+      navigation.navigate(t('home'));  // 'Home' should also be added to translations
     } catch (error) {
-      console.error('Error deleting memory: ', error);
-      Alert.alert('Error', 'Anıyı silerken bir hata oluştu.');
+      console.error(t('errorDeletingMemory'), error);  // Updated with translation key
+      Alert.alert(t('error'), t('errorDeletingMemory'));
     }
   };
 
   const confirmDelete = () => {
     Alert.alert(
-      "Anıyı Sil",
-      "Bu anıyı silmek istediğinizden emin misiniz?",
+      t('deleteMemory'),
+      t('confirmDeleteMemory'),
       [
-        { text: "İptal", style: "cancel" },
-        { text: "Sil", onPress: handleDelete }
+        { text: t('cancel'), style: "cancel" },
+        { text: t('delete'), onPress: handleDelete }
       ],
       { cancelable: true }
     );
@@ -54,7 +54,10 @@ export default function MemoryScreen({ route, navigation }: { route: any, naviga
             </TouchableOpacity>
           </View>
         </View>
-        <Text style={styles.location}>{memory.location.city}</Text>
+        <View style={styles.score}>
+          <Text style={styles.location}>{memory.title}, {memory.location.city}</Text>
+          <Text style={styles.text}>{<AntDesign name="star" size={22} color="black" />}{memory.score}</Text>
+        </View>
         <Text style={styles.date}>{new Date(memory.timestamp.seconds * 1000).toLocaleDateString()}</Text>
         <Text style={styles.text}>{t('photos')}</Text>
       </View>
@@ -63,7 +66,7 @@ export default function MemoryScreen({ route, navigation }: { route: any, naviga
       </View>
       <View style={styles.container2}>
         <Text style={styles.text}>{t('memories')}</Text>
-        <Text style={styles.memory}>{memory.memory}</Text>
+        <Text style={styles.memory}>{memory.content}</Text>
       </View>
     </View>
   );
@@ -110,9 +113,6 @@ const styles = StyleSheet.create({
     width: 250,
     borderRadius: 10,
   },
-  horizontalList: {
-    paddingHorizontal: 10,
-  },
   location: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -124,11 +124,21 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: 'bold',
     fontSize: 24,
-    marginTop: 15,
-    marginBottom: 5,
+    marginTop: 7,
+  },
+  text1: {
+    fontWeight: '500',
+    fontSize: 18,
+    marginTop: 3,
+    marginBottom: 3,
   },
   memory: {
     fontSize: 14,
-    fontWeight: '400',
+    fontWeight: '500',
+  },
+  score: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '90%',
   },
 });

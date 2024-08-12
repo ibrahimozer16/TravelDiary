@@ -18,6 +18,7 @@ type LocationType1 = {
 }
 
 export default function MapScreen({navigation}:{navigation:any}) {
+  const {t} = useTranslation();
   const [location, setLocation] = useState<LocationType>(null);
   const [locations, setLocations] = useState<LocationType1[]>([])
   const [region, setRegion] = useState({
@@ -62,7 +63,6 @@ export default function MapScreen({navigation}:{navigation:any}) {
     fetchLocations();
   }, []);
   
-  const {t} = useTranslation();
 
   return (
     <View style={styles.container}>

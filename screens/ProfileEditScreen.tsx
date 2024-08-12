@@ -47,7 +47,7 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
             }
         }
         fetchUserData();
-    }, [])
+    }, [currentUser, dispatch])
 
     const handleSave = async () => {
         try {
@@ -60,7 +60,7 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
                 await updateDoc(doc(firestore, 'Users', currentUser.uid), {
                     name,
                     surname,
-                    email: user?.email ?? '',
+                    email: currentUser.email ?? '',
                     password: newPassword ? newPassword : oldPassword,
                     profileImage: profileImage ?? user?.profileImage,
                 })
@@ -69,7 +69,7 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
                     payload: {
                         name,
                         surname,
-                        email: user?.email ?? '',
+                        email: currentUser.email ?? '',
                         password: newPassword ? newPassword : oldPassword,
                         profileImage: profileImage! ?? user?.profileImage,
                     }
@@ -82,6 +82,7 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
             alert('Profil güncellenirken bir hata oluştu. Lütfen tekrar deneyin.');
         }
     }
+    
     const addPhoto = () => {
         Alert.alert(
             t('addPhoto'),
@@ -281,7 +282,3 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
 })
-
-function handleImagePicked(uri: any) {
-    throw new Error('Function not implemented.');
-}
