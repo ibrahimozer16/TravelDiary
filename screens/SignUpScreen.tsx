@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
 import React, { useState, useReducer } from 'react'
 import { AntDesign } from '@expo/vector-icons';
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -8,6 +8,7 @@ import { setDoc, doc } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
 
 export default function SignUpScreen({navigation} : {navigation: any}) {
+    const {t} = useTranslation();
 
     const initialState = {name: '', surname: '', email: '', password: ''}
 
@@ -43,7 +44,7 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
             })
 
             dispatch({type: 'SET_USER', payload: state})
-            alert("Kayıt İşlemi Başarılı");
+            alert(t('registrationSuccessful'));
             navigation.navigate('Login')
         })
         .catch((error) => {
@@ -53,19 +54,19 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
             console.log('Error message:', errorMessage);
             switch (errorCode) {
                 case 'auth/invalid-email':
-                    alert("Girilen e-posta adresi geçersiz. Lütfen geçerli bir e-posta adresi girin.");
+                    alert(t('invalidEmail'));
                     break;
-                    case 'auth/network-request-failed':
-                        alert("Ağ hatası oluştu. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.");
-                        break;
-                    case 'auth/email-already-in-use':
-                        alert("Bu e-posta adresi zaten kullanımda. Başka bir e-posta adresi deneyin veya giriş yapın.");
-                        break;
-                    case 'auth/weak-password':
-                        alert("Girilen şifre çok zayıf. Lütfen daha güçlü bir şifre girin.");
-                        break;
-                    default:
-                        alert(`Bir hata oluştu: ${errorMessage}`);
+                case 'auth/network-request-failed':
+                    alert(t('networkError'));
+                    break;
+                case 'auth/email-already-in-use':
+                    alert(t('emailInUse'));
+                    break;
+                case 'auth/weak-password':
+                    alert(t('weakPassword'));
+                    break;
+                default:
+                    alert(`${t('errorOccurred')}: ${errorMessage}`);
             }
         });
     }
@@ -74,57 +75,59 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
         navigation.navigate('Login');
     }
 
-    const {t} = useTranslation();
-
   return (
     <KeyboardAvoidingView 
-        style={styles.container}
+        style={{ flex: 1, backgroundColor: "#DCE9F2" }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}>
-        <View style={styles.header}>
-            <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('First')}>
-                <AntDesign name="arrowleft" size={24} color="black" />
-            </TouchableOpacity>
-            <Image style={styles.image} source={require('../assets/dunya.png')}/>
-            <Text style={styles.text}>{t('travelDiary')}</Text>
-            <Text style={styles.text1}>{t('login')}</Text>
-        </View>
-        <SafeAreaView style={styles.inputContainer}>
-            <Text style={styles.text2}>{t('name')}</Text>
-            <TextInput 
-                style={styles.input}
-                value={state.name}
-                onChangeText={(text) => dispatchLocal({type: 'setName', payload: text})}
-            />
-            <Text style={styles.text2}>{t('surname')}</Text>
-            <TextInput 
-                style={styles.input}
-                value={state.surname}
-                onChangeText={(text) => dispatchLocal({type: 'setSurname', payload: text})}
-            />
-            <Text style={styles.text2}>{t('email')}</Text>
-            <TextInput 
-                style={styles.input} 
-                value={state.email}
-                onChangeText={(text) => dispatchLocal({type: 'setEmail', payload: text})}
-                keyboardType='email-address'
-            />
-            <Text style={styles.text2}>{t('password')}</Text>
-            <TextInput 
-                style={styles.input} 
-                value={state.password}
-                onChangeText={(text) => dispatchLocal({type: 'setPassword', payload: text})}
-                secureTextEntry
-            />
-        </SafeAreaView>
-        <View style={styles.container1}>
-            <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-                <Text style={styles.buttonText}>{t('signup')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button1} onPress={returnLogin}>
-                <Text>{t('haveAccount')}</Text>
-            </TouchableOpacity>
-        </View>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('First')}>
+                        <AntDesign name="arrowleft" size={24} color="black" />
+                    </TouchableOpacity>
+                    <Image style={styles.image} source={require('../assets/dunya.png')}/>
+                    <Text style={styles.text}>{t('travelDiary')}</Text>
+                    <Text style={styles.text1}>{t('login')}</Text>
+                </View>
+                <View style={styles.inputContainer}>
+                    <Text style={styles.text2}>{t('name')}</Text>
+                    <TextInput 
+                        style={styles.input}
+                        value={state.name}
+                        onChangeText={(text) => dispatchLocal({type: 'setName', payload: text})}
+                    />
+                    <Text style={styles.text2}>{t('surname')}</Text>
+                    <TextInput 
+                        style={styles.input}
+                        value={state.surname}
+                        onChangeText={(text) => dispatchLocal({type: 'setSurname', payload: text})}
+                    />
+                    <Text style={styles.text2}>{t('email')}</Text>
+                    <TextInput 
+                        style={styles.input} 
+                        value={state.email}
+                        onChangeText={(text) => dispatchLocal({type: 'setEmail', payload: text})}
+                        keyboardType='email-address'
+                    />
+                    <Text style={styles.text2}>{t('password')}</Text>
+                    <TextInput 
+                        style={styles.input} 
+                        value={state.password}
+                        onChangeText={(text) => dispatchLocal({type: 'setPassword', payload: text})}
+                        secureTextEntry
+                    />
+                </View>
+                <View style={styles.container1}>
+                    <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+                        <Text style={styles.buttonText}>{t('signup')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button1} onPress={returnLogin}>
+                        <Text>{t('haveAccount')}</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        </ScrollView>
     </KeyboardAvoidingView>
   )
 }

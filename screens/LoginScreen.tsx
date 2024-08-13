@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, ScrollView, Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AntDesign } from '@expo/vector-icons';
 import { auth } from '../model/firebase';
@@ -9,6 +9,7 @@ import { useUser } from '../context/UserContext';
 import { useTranslation } from 'react-i18next';
 
 export default function LoginScreen({navigation} : {navigation: any}) {
+    const {t} = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { state, dispatch } = useUser();
@@ -40,19 +41,19 @@ export default function LoginScreen({navigation} : {navigation: any}) {
             const errorMessage = error.message;
             switch (errorCode) {
                 case 'auth/invalid-email':
-                    alert("Girilen e-posta adresi geçersiz. Lütfen geçerli bir e-posta adresi girin.");
+                    alert(t('invalidEmail'));
                     break;
                 case 'auth/user-not-found':
-                    alert("Bu e-posta adresiyle kayıtlı bir kullanıcı bulunamadı. Lütfen kayıt olun.");
+                    alert(t('userNotFound'));
                     break;
                 case 'auth/wrong-password':
-                    alert("Yanlış şifre girildi. Lütfen şifrenizi kontrol edin.");
+                    alert(t('wrongPassword'));
                     break;
                 case 'auth/network-request-failed':
-                    alert("Ağ hatası oluştu. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.");
+                    alert(t('networkError'));
                     break;
                 default:
-                    alert(`Giriş yapılırken bir hata oluştu: ${errorMessage}`);
+                    alert(`${t('errorOccurred')}: ${errorMessage}`);
             }
         });
     }
@@ -65,51 +66,57 @@ export default function LoginScreen({navigation} : {navigation: any}) {
         navigation.navigate('ForgetPassword')
     }
 
-    const {t} = useTranslation();
-
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('First')}>
-            <AntDesign name="arrowleft" size={24} color="black" />
-        </TouchableOpacity>
-        <Image style={styles.image} source={require('../assets/dunya.png')}/>
-        <Text style={styles.text}>{t('travelDiary')}</Text>
-        <Text style={styles.text1}>{t('login')}</Text>
-      </View>
-      <KeyboardAvoidingView style={styles.inputContainer}>
-        <Text style={styles.text2}>{t('email')}</Text>
-        <TextInput 
-            style={styles.input} 
-            value={email}
-            onChangeText={setEmail}
-            keyboardType='email-address'/>
-        <Text style={styles.text2}>{t('password')}</Text>
-        <TextInput 
-            style={styles.input} 
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry/>
-        <TouchableOpacity onPress={forgetPassword}>
-            <Text style={styles.text3}>{t('forgotPassword')}</Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-      <View style={styles.container1}>
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>{t('login')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button1} onPress={handleSignUp}>
-            <Text>{t('noAccount')}</Text>
-        </TouchableOpacity>
-        <Text style={styles.text4}>------------------  {t('or')}  ------------------</Text>
-        <TouchableOpacity style={styles.button2} onPress={() => onGoogleButtonPress(dispatch, navigation)}>
-            <Text style={styles.buttonText}>{t('signInWithGoogle')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button3} onPress={() => signInWithFB(dispatch, navigation)}>
-            <Text style={styles.buttonText}>{t('signInWithFacebook')}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: "#DCE9F2" }}
+        behavior={Platform.OS === 'ios' ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('First')}>
+                        <AntDesign name="arrowleft" size={24} color="black" />
+                    </TouchableOpacity>
+                    <Image style={styles.image} source={require('../assets/dunya.png')}/>
+                    <Text style={styles.text}>{t('travelDiary')}</Text>
+                    <Text style={styles.text1}>{t('login')}</Text>
+                </View>
+                <KeyboardAvoidingView style={styles.inputContainer}>
+                    <Text style={styles.text2}>{t('email')}</Text>
+                    <TextInput 
+                        style={styles.input} 
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType='email-address'/>
+                    <Text style={styles.text2}>{t('password')}</Text>
+                    <TextInput 
+                        style={styles.input} 
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry/>
+                    <TouchableOpacity onPress={forgetPassword}>
+                        <Text style={styles.text3}>{t('forgotPassword')}</Text>
+                    </TouchableOpacity>
+                </KeyboardAvoidingView>
+                <View style={styles.container1}>
+                    <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                        <Text style={styles.buttonText}>{t('login')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button1} onPress={handleSignUp}>
+                        <Text>{t('noAccount')}</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.text4}>------------------  {t('or')}  ------------------</Text>
+                    <TouchableOpacity style={styles.button2} onPress={() => onGoogleButtonPress(dispatch, navigation)}>
+                        <Text style={styles.buttonText}>{t('signInWithGoogle')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button3} onPress={() => signInWithFB(dispatch, navigation)}>
+                        <Text style={styles.buttonText}>{t('signInWithFacebook')}</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 
@@ -120,7 +127,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     container1: {
-        top: 30,
+        marginTop: 20,
     },
     header: {
         top: 50,
@@ -166,6 +173,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: '#99B6B6',
         height: 30,
+        paddingHorizontal: 10,
     },
     button: {
         alignSelf: 'center',

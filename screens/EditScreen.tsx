@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import React, { useReducer, useState } from 'react';
 import { firestore } from '../model/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -64,53 +64,59 @@ export default function EditScreen({ route, navigation }: { route: any, navigati
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.icon}>
-          <TouchableOpacity onPress={() => navigation.navigate('Memory', {memory})}>
-            <AntDesign name="arrowleft" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.score}>
-          <Text style={styles.location}>{memory.title}, {memory.location.city}</Text>
-          <View style={styles.text2}>
-            <AntDesign name="star" size={22} color="black" style={styles.icon1} />
-            <TextInput
-              style={styles.score1}
-              value={String(state.score)}
-              onChangeText={handleEditScore}
-              keyboardType='decimal-pad'
-            />
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: "#DCE9F2" }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-start' }}>
+        <View style={styles.header}>
+          <View style={styles.icon}>
+            <TouchableOpacity onPress={() => navigation.navigate('Memory', {memory})}>
+              <AntDesign name="arrowleft" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.score}>
+            <Text style={styles.location}>{memory.title}, {memory.location.city}</Text>
+            <View style={styles.text2}>
+              <AntDesign name="star" size={22} color="black" style={styles.icon1} />
+              <TextInput
+                style={styles.score1}
+                value={String(state.score)}
+                onChangeText={handleEditScore}
+                keyboardType='decimal-pad'
+              />
+            </View>
+          </View>
+          <Text style={styles.date}>{new Date(memory.timestamp.seconds * 1000).toLocaleDateString()}</Text>
+          <View style={styles.add}>
+            <Text style={styles.text}>{t('photos')}</Text>
           </View>
         </View>
-        <Text style={styles.date}>{new Date(memory.timestamp.seconds * 1000).toLocaleDateString()}</Text>
-        <View style={styles.add}>
-          <Text style={styles.text}>{t('photos')}</Text>
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: memory.imageUrl }} style={styles.image} />
         </View>
-      </View>
-      <View style={styles.container1}>
-        <Image source={{ uri: memory.imageUrl }} style={styles.image} />
-      </View>
-      <View style={styles.container2}>
-        <Text style={styles.text}>{t('memories')}</Text>
-        <Text style={styles.text1}>{t('title')}</Text>
-        <TextInput
-          style={styles.memory}
-          value={state.title}
-          onChangeText={(title) => dispatch({ type: 'setTitle', payload: title })}
-        />
-        <Text style={styles.text1}>{t('content')}</Text>
-        <TextInput
-          style={styles.memory}
-          value={state.content}
-          onChangeText={(content) => dispatch({ type: 'setContent', payload: content })}
-          multiline
-        />
-        <TouchableOpacity style={styles.button} onPress={saveEdit}>
-          <Text style={styles.buttonText}>{uploading ? t('saving') : t('save')}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+        <View style={styles.container2}>
+          <Text style={styles.text}>{t('memories')}</Text>
+          <Text style={styles.text1}>{t('title')}</Text>
+          <TextInput
+            style={styles.memory}
+            value={state.title}
+            onChangeText={(title) => dispatch({ type: 'setTitle', payload: title })}
+          />
+          <Text style={styles.text1}>{t('content')}</Text>
+          <TextInput
+            style={styles.memory}
+            value={state.content}
+            onChangeText={(content) => dispatch({ type: 'setContent', payload: content })}
+            multiline
+          />
+          <TouchableOpacity style={styles.button} onPress={saveEdit}>
+            <Text style={styles.buttonText}>{uploading ? t('saving') : t('save')}</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -122,19 +128,24 @@ const styles = StyleSheet.create({
     },
     header: {
       alignSelf: 'center',
-      flex: 2.5,
       width: '90%',
-      justifyContent: 'space-evenly',
+      marginTop: 10,
+
     },
-    container1: {
+    imageContainer: {
       justifyContent: 'center',
       alignItems: 'center',
-      flex: 3.5,
+      marginVertical: 20,
+    },
+    image: {
+      width: 250,
+      height: 290,
+      borderRadius: 10,
     },
     container2: {
-      flex: 2.5,
       width: '90%',
       alignSelf: 'center',
+      marginBottom: 20,
     },
     icon: {
       left: 10,
@@ -147,16 +158,6 @@ const styles = StyleSheet.create({
       alignSelf: 'stretch',
       flexDirection: 'row',
       justifyContent: 'space-between',
-    },
-    imageContainer: {
-      position: 'relative',
-      marginRight: 10,
-    },
-    image: {
-      flex: 1,
-      width: 250,
-      borderRadius: 10,
-      marginHorizontal: 5,
     },
     location: {
       fontSize: 28,
@@ -183,7 +184,6 @@ const styles = StyleSheet.create({
     },
     text2: {
       flexDirection: 'row',
-      backgroundColor: 'yellow',
       width: '20%',
       marginTop: 5,
     },
@@ -197,19 +197,18 @@ const styles = StyleSheet.create({
       marginHorizontal: 10,
     },
     button: {
-        position: 'absolute',
         alignSelf: 'center',
         backgroundColor: '#B1C9DA',
-        bottom: 10,
-        width: '40%',
-        height: 30,
-        borderRadius: 15,
-        borderWidth: 0.5,
+        marginTop: 20,
+        width: '50%',
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     buttonText: {
-        alignSelf: 'center',
-        justifyContent: 'center',
         fontSize: 18,
+        fontWeight: 'bold',
     },
     score: {
       flexDirection: 'row',

@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
 import { firestore, auth } from '../model/firebase';
@@ -42,7 +42,6 @@ export default function HomeScreen({navigation} : {navigation: any}) {
             const q = query(
                 collection(firestore, 'Memories'), 
                 where('email', '==', currentUser.email),
-                // orderBy('timestamp', 'desc'),
             );
             const querySnapshot = await getDocs(q);
             const memoriesData = querySnapshot.docs.map(doc => ({
@@ -66,12 +65,10 @@ export default function HomeScreen({navigation} : {navigation: any}) {
             fetchMemories();
         } else {
             const searchTermLower = text.toLowerCase().trim();
-            console.log('Search Term:', searchTermLower);
             const filteredMemories = memories.filter(memory => {
                 const titleLower = memory.title.toLowerCase();
                 return titleLower.includes(searchTermLower);
             });
-            console.log('Filtered Memories:', filteredMemories);
             setMemories(filteredMemories);
         }
     };
@@ -124,55 +121,61 @@ export default function HomeScreen({navigation} : {navigation: any}) {
 
     return (
         <KeyboardAvoidingView 
-            style={styles.container}
+            style={{ flex: 1, backgroundColor: "#DCE9F2" }}
             behavior={Platform.OS === 'ios' ? "padding" : "height"}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
         >
-            <View style={styles.keyContainer}>
-                <View style={styles.header}>
-                    <Text style={styles.text}>{t('hello')} {user?.name}</Text>
-                    <MaterialCommunityIcons style={styles.icon} name="hand-wave" size={24} color="black" />
+            <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-start' }}>
+                <View style={styles.keyContainer}>
+                    <View style={styles.header}>
+                        <Text style={styles.text}>{t('hello')} {user?.name}</Text>
+                        <MaterialCommunityIcons style={styles.icon} name="hand-wave" size={24} color="black" />
+                    </View>
+                    <TextInput 
+                        style={styles.input} 
+                        placeholder={t('searchMemory')} 
+                        value={searchTerm}
+                        onChangeText={handleSearch}
+                    />
+                    <Text style={styles.text}>{t('memories')}</Text>
+                    <View style={styles.buttonView}>
+                        <TouchableOpacity style={styles.button} onPress={byDate}>
+                            <Text style={styles.buttonText}>{t('byDate')}</Text>
+                        </TouchableOpacity>
+                        <Text>    </Text>
+                        <TouchableOpacity style={styles.button} onPress={byScore}>
+                            <Text style={styles.buttonText}>{t('byScore')}</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <TextInput 
-                    style={styles.input} 
-                    placeholder={t('searchMemory')} 
-                    value={searchTerm}
-                    onChangeText={handleSearch}
-                />
-                <Text style={styles.text}>{t('memories')}</Text>
-                <View style={styles.buttonView}>
-                    <TouchableOpacity style={styles.button} onPress={byDate}>
-                        <Text style={styles.buttonText}>{t('byDate')}</Text>
-                    </TouchableOpacity>
-                    <Text>    </Text>
-                    <TouchableOpacity style={styles.button} onPress={byScore}>
-                        <Text style={styles.buttonText}>{t('byScore')}</Text>
-                    </TouchableOpacity>
+                <View style={styles.container1}>
+                {memories.length > 0 ? (
+                    <FlatList 
+                        data={memories}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id}
+                        horizontal={true}
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.horizontalList}
+                    />
+                ) : (
+                    <Text style={styles.noMemoriesText}>{t('notFoundMemories')}</Text>
+                )}
                 </View>
-            </View>
-            <View style={styles.container1}>
-                <FlatList 
-                    data={memories}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.horizontalList}
-                />
-            </View>
-            <View style={styles.container2}>
-                <View style={styles.tabbar}>
-                    <TouchableOpacity onPress={() => navigation.navigate('Map')}>
-                        <Feather name="map" size={32} color="black"/>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('Camera')}>
-                        <Feather name="camera" size={32} color="black"/>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                        <Feather name="user" size={32} color="black"/>
-                    </TouchableOpacity>
+                <View style={styles.container2}>
+                    <View style={styles.tabbar}>
+                        <TouchableOpacity onPress={() => navigation.navigate('Map', {memories: memories})}>
+                            <Feather name="map" size={32} color="black"/>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate('Camera')}>
+                            <Feather name="camera" size={32} color="black"/>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                            <Feather name="user" size={32} color="black"/>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     );
 }
@@ -181,29 +184,31 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#DCE9F2",
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     keyContainer: {
         width: '90%',
-        flex: 3,
-        justifyContent: 'center'
+        alignSelf: 'center',
+        marginTop: 20,
     },
     container1: {
         justifyContent: 'center',
         alignItems: 'center',
         width: '90%',
-        flex: 4,
+        alignSelf: 'center',
+        marginTop: 20,
+        height: 374,
     },
     container2: {
         width: '100%',
-        flex: 0.5,
         backgroundColor: '#B1C9DA',
         justifyContent: 'center',
+        paddingVertical: 10,
+        marginTop: 20,
+        position: 'static'
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
     },
     text: {
         fontSize: 30,
@@ -222,15 +227,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         borderRadius: 15,
         height: 50,
+        paddingHorizontal: 10,
+        marginVertical: 10,
     },
     button: {
         backgroundColor: '#99B6B6',
         width: '40%',
         height: 35,
         borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     buttonText: {
-        alignSelf: 'center',
         fontSize: 16,
     },
     tabbar: {
@@ -238,13 +246,19 @@ const styles = StyleSheet.create({
         justifyContent: 'space-evenly',
     },
     itemContainer: {
-        
+        marginRight: 20,
     },
     image: {
-        flex: 1,
         width: 220,
+        height: 320,
         borderRadius: 10,
-        marginRight: 20,
+        marginTop: 16,
+    },
+    noMemoriesText: {
+        fontSize: 18,
+        color: '#333',
+        alignSelf: 'center',
+        marginTop: 20,
     },
     cityText: {
         marginVertical: 8,

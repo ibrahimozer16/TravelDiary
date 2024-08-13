@@ -87,5 +87,19 @@
     "errorFetchingData": "Veriler alınırken bir hata oluştu",
     "retry": "Tekrar Dene",
     "memoryDetails": "Anı Detayları",
-    "uploading": "Yükleniyor..."
+    "uploading": "Yükleniyor...",
+    "noTitleInfo": "Başlık yok",
+    "goToMemory": "Anıya Git",
+    "close": "Kapat",
+    "notFoundMemories": "Anı bulunamadı",
+    "userLoggedIn": "Kullanıcı giriş yaptı",
+    "invalidEmail": "Girilen e-posta adresi geçersiz. Lütfen geçerli bir e-posta adresi girin.",
+    "userNotFound": "Bu e-posta adresiyle kayıtlı bir kullanıcı bulunamadı. Lütfen kayıt olun.",
+    "wrongPassword": "Yanlış şifre girildi. Lütfen şifrenizi kontrol edin.",
+    "networkError": "Ağ hatası oluştu. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.",
+    "errorOccurred": "Bir hata oluştu",
+    "userRegistered": "Kullanıcı kaydedildi",
+    "registrationSuccessful": "Kayıt işlemi başarılı",
+    "emailInUse": "Bu e-posta adresi zaten kullanımda. Başka bir e-posta adresi deneyin veya giriş yapın.",
+    "weakPassword": "Girilen şifre çok zayıf. Lütfen daha güçlü bir şifre girin."
 }

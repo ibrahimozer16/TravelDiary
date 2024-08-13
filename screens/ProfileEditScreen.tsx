@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, Alert } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, Alert, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AntDesign } from '@expo/vector-icons';
 import { useUser } from '../context/UserContext';
@@ -152,64 +152,68 @@ export default function ProfileEditScreen({navigation} : {navigation: any}) {
       };
 
     return (
-    <KeyboardAvoidingView 
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}>
-        <View style={styles.header}>
-            <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('Profile')}>
-                <AntDesign name="arrowleft" size={24} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.text1}>{t('profile')}</Text>
-            <TouchableOpacity onPress={addPhoto}>
-                <Image style={styles.image} source={profileImage ? { uri: profileImage } : require('../assets/avatar.png')}/>
-            </TouchableOpacity>
-        </View>
-        <SafeAreaView style={styles.inputContainer}>
-            <Text style={styles.text2}>{t('name')}</Text>
-            <TextInput 
-                style={styles.input}
-                value={name}
-                onChangeText={setName}
-            />
-            <Text style={styles.text2}>{t('surname')}</Text>
-            <TextInput 
-                style={styles.input}
-                value={surname}
-                onChangeText={setSurname}
-            />
-            <Text style={styles.text2}>{t('email')}</Text>
-            <TextInput 
-                style={styles.input} 
-                value={user?.email ?? ''}
-                editable= {false}
-                keyboardType='email-address'
-            />
-            <Text style={styles.text2}>{t('oldPassword')}</Text>
-            <TextInput
-                style={styles.input}
-                value={oldPassword}
-                onChangeText={setOldPassword}
-                secureTextEntry={!showPassword}
-            />
-            <Text style={styles.text2}>{t('newPassword')}</Text>
-            <TextInput
-                style={styles.input}
-                value={newPassword}
-                onChangeText={setNewPassword}
-                secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Text>{showPassword ? t('hidePassword') : t('showPassword')}</Text>
-            </TouchableOpacity>
+        <SafeAreaView style={{flex: 1, backgroundColor: "#DCE9F2"}}>
+            <KeyboardAvoidingView 
+            style={styles.container}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}>
+                <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center'}}>
+                    <View style={styles.header}>
+                        <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('Profile')}>
+                            <AntDesign name="arrowleft" size={24} color="black" />
+                        </TouchableOpacity>
+                        <Text style={styles.text1}>{t('profile')}</Text>
+                        <TouchableOpacity onPress={addPhoto}>
+                            <Image style={styles.image} source={profileImage ? { uri: profileImage } : require('../assets/avatar.png')}/>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.text2}>{t('name')}</Text>
+                        <TextInput 
+                            style={styles.input}
+                            value={name}
+                            onChangeText={setName}
+                        />
+                        <Text style={styles.text2}>{t('surname')}</Text>
+                        <TextInput 
+                            style={styles.input}
+                            value={surname}
+                            onChangeText={setSurname}
+                        />
+                        <Text style={styles.text2}>{t('email')}</Text>
+                        <TextInput 
+                            style={styles.input} 
+                            value={user?.email ?? ''}
+                            editable= {false}
+                            keyboardType='email-address'
+                        />
+                        <Text style={styles.text2}>{t('oldPassword')}</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={oldPassword}
+                            onChangeText={setOldPassword}
+                            secureTextEntry={!showPassword}
+                        />
+                        <Text style={styles.text2}>{t('newPassword')}</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={newPassword}
+                            onChangeText={setNewPassword}
+                            secureTextEntry={!showPassword}
+                        />
+                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                            <Text>{showPassword ? t('hidePassword') : t('showPassword')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.container1}>
+                        <TouchableOpacity style={styles.button} onPress={handleSave}>
+                            <Text style={styles.buttonText}>{t('save')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
-        <View style={styles.container1}>
-            <TouchableOpacity style={styles.button} onPress={handleSave}>
-                <Text style={styles.buttonText}>{t('save')}</Text>
-            </TouchableOpacity>
-        </View>
-    </KeyboardAvoidingView>
-  )
+    )
 }
 
 const styles = StyleSheet.create({
