@@ -78,6 +78,7 @@ export default function CameraScreen({ navigation }: { navigation: any }) {
 
     let city = await getCityFromCoordinates(location.coords.latitude, location.coords.longitude);
     setCity(city);
+    alert('Konum Kaydedildi!');
   };
 
   const uploadImage = async (uri: string) => {
@@ -116,6 +117,7 @@ export default function CameraScreen({ navigation }: { navigation: any }) {
         setTitle('');
         setContent('');
         setScore('');
+        navigation.navigate('Home');
       } catch (error) {
         console.error(t('errorSavingMemory'), error);
       } finally {

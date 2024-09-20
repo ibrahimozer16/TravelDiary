@@ -7,6 +7,7 @@ import { onGoogleButtonPress } from '../model/auth/GoogleAuth';
 import { signInWithFB } from '../model/auth/FacebookAuth';
 import { useUser } from '../context/UserContext';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({navigation} : {navigation: any}) {
     const {t} = useTranslation();
@@ -30,32 +31,41 @@ export default function LoginScreen({navigation} : {navigation: any}) {
         })
     }, [])
 
-    const handleLogin = () => {
-        signInWithEmailAndPassword(auth, email, password)
-        .then((userCredentials: { user: any }) => {
+    const handleLogin = async (email:string, password:string) => {
+        try {
+            // Firebase ile giriş yapma
+            const userCredentials = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredentials.user;
-            console.log('Kullanıcı Giriş Yaptı ', user.email);
+        
+            // Giriş yapıldıktan sonra AsyncStorage'a oturum bilgisini kaydet
+            await AsyncStorage.setItem('userToken', user.uid);
+        
+            console.log('Kullanıcı Giriş Yaptı:', user.email);
+        
+            // Kullanıcıyı Home ekranına yönlendir
             navigation.navigate('Home');
-        }).catch((error: { code: any, message: any }) => {
+          } catch (error: any) {
             const errorCode = error.code;
             const errorMessage = error.message;
+        
+            // Hata durumlarını ele alma
             switch (errorCode) {
-                case 'auth/invalid-email':
-                    alert(t('invalidEmail'));
-                    break;
-                case 'auth/user-not-found':
-                    alert(t('userNotFound'));
-                    break;
-                case 'auth/wrong-password':
-                    alert(t('wrongPassword'));
-                    break;
-                case 'auth/network-request-failed':
-                    alert(t('networkError'));
-                    break;
-                default:
-                    alert(`${t('errorOccurred')}: ${errorMessage}`);
+              case 'auth/invalid-email':
+                alert(t('invalidEmail'));
+                break;
+              case 'auth/user-not-found':
+                alert(t('userNotFound'));
+                break;
+              case 'auth/wrong-password':
+                alert(t('wrongPassword'));
+                break;
+              case 'auth/network-request-failed':
+                alert(t('networkError'));
+                break;
+              default:
+                alert(`${t('errorOccurred')}: ${errorMessage}`);
             }
-        });
+          }
     }
 
     const handleSignUp = () => {
@@ -78,8 +88,8 @@ export default function LoginScreen({navigation} : {navigation: any}) {
                     <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('First')}>
                         <AntDesign name="arrowleft" size={24} color="black" />
                     </TouchableOpacity>
-                    <Image style={styles.image} source={require('../assets/dunya.png')}/>
                     <Text style={styles.text}>{t('travelDiary')}</Text>
+                    <Image style={styles.image} source={require('../assets/dunya.png')}/>
                     <Text style={styles.text1}>{t('login')}</Text>
                 </View>
                 <KeyboardAvoidingView style={styles.inputContainer}>
@@ -100,11 +110,11 @@ export default function LoginScreen({navigation} : {navigation: any}) {
                     </TouchableOpacity>
                 </KeyboardAvoidingView>
                 <View style={styles.container1}>
-                    <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                    <TouchableOpacity style={styles.button} onPress={() => handleLogin(email, password)}>
                         <Text style={styles.buttonText}>{t('login')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.button1} onPress={handleSignUp}>
-                        <Text>{t('noAccount')}</Text>
+                        <Text style={styles.noAccount}>{t('noAccount')}</Text>
                     </TouchableOpacity>
                     <Text style={styles.text4}>------------------  {t('or')}  ------------------</Text>
                     <TouchableOpacity style={styles.button2} onPress={() => onGoogleButtonPress(dispatch, navigation)}>
@@ -142,7 +152,7 @@ const styles = StyleSheet.create({
         height: 130,
     },
     text: {
-        fontSize: 25,
+        fontSize: 30,
         fontWeight: 'bold',
     },
     text1: {
@@ -212,4 +222,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         fontSize: 18,
     },
+    noAccount: {
+        textDecorationLine: 'underline',
+    }
 })

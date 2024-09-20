@@ -1,10 +1,12 @@
-import { StyleSheet, Text, TouchableOpacity, View, Image, Alert } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, Image, Alert, ScrollView } from 'react-native';
+import React, { cloneElement } from 'react';
 import { AntDesign, MaterialIcons, Feather } from '@expo/vector-icons';
 import { firestore, storage } from '../model/firebase';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { useTranslation } from 'react-i18next';
+import * as Sharing from 'expo-sharing';
+import Share from 'react-native-share';
 
 export default function MemoryScreen({ route, navigation }: { route: any, navigation: any }) {
   const {t} = useTranslation();
@@ -15,9 +17,9 @@ export default function MemoryScreen({ route, navigation }: { route: any, naviga
       await deleteDoc(doc(firestore, 'Memories', memory.id));
       const imageRef = ref(storage, memory.imageUrl);
       await deleteObject(imageRef);
-      navigation.navigate(t('home'));  // 'Home' should also be added to translations
+      navigation.navigate(t('Home'));
     } catch (error) {
-      console.error(t('errorDeletingMemory'), error);  // Updated with translation key
+      console.error(t('errorDeletingMemory'), error); 
       Alert.alert(t('error'), t('errorDeletingMemory'));
     }
   };
@@ -66,7 +68,9 @@ export default function MemoryScreen({ route, navigation }: { route: any, naviga
       </View>
       <View style={styles.container2}>
         <Text style={styles.text}>{t('memories')}</Text>
-        <Text style={styles.memory}>{memory.content}</Text>
+        <ScrollView style={styles.scrollView}>
+          <Text style={styles.memory}>{memory.content}</Text>
+        </ScrollView>
       </View>
     </View>
   );
@@ -132,9 +136,15 @@ const styles = StyleSheet.create({
     marginTop: 3,
     marginBottom: 3,
   },
+  scrollView: {
+    width: '90%',
+    maxHeight: 140, 
+    borderWidth: 0.1,
+  },
   memory: {
     fontSize: 14,
     fontWeight: '500',
+    paddingRight: 3,
   },
   score: {
     flexDirection: 'row',

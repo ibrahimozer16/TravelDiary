@@ -7,6 +7,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { LoginManager } from 'react-native-fbsdk-next';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function ProfileScreen({navigation} : {navigation: any}) {
@@ -57,6 +58,8 @@ export default function ProfileScreen({navigation} : {navigation: any}) {
             if (isSignedInWithFacebook) {
                 await LoginManager.logOut();
             }
+
+            await AsyncStorage.removeItem('userToken');
 
             dispatch({type: 'CLEAR_USER'});
             navigation.navigate('Login');
@@ -170,6 +173,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#99B6B6',
         height: 30,
         textAlignVertical: 'center',
+        paddingLeft: 10,
     },
     button: {
         alignSelf: 'center',
@@ -207,5 +211,6 @@ const styles = StyleSheet.create({
     passwordInput: {
         fontSize: 16,
         flex: 1,
+        paddingLeft: 10,
     },
 })

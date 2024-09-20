@@ -25,7 +25,7 @@
     "saving": "Saving...",
     "locationPermissionDenied": "Location permission denied",
     "memorySavedSuccessfully": "Memory saved successfully!",
-    "fillAllFields": "Please fill all fields and take a photo",
+    "fillAllFields": "Please fill all fields",
     "unknownCity": "Unknown City",
     "errorReverseGeocode": "Reverse geocode error",
     "errorSavingMemory": "Error saving memory",

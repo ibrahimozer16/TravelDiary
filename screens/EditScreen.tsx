@@ -55,7 +55,8 @@ export default function EditScreen({ route, navigation }: { route: any, navigati
   };
 
   const handleEditScore = (newScore:string) => {
-    const numericValue = parseFloat(newScore);
+
+    const numericValue = newScore === '' ? 0 :parseFloat(newScore);
     if(!isNaN(numericValue) && numericValue >= 0 && numericValue <= 5){
       dispatch({ type: 'setScore', payload: newScore })
     }else{
@@ -106,10 +107,10 @@ export default function EditScreen({ route, navigation }: { route: any, navigati
           />
           <Text style={styles.text1}>{t('content')}</Text>
           <TextInput
-            style={styles.memory}
+            style={styles.memory1}
             value={state.content}
             onChangeText={(content) => dispatch({ type: 'setContent', payload: content })}
-            multiline
+            multiline={true}
           />
           <TouchableOpacity style={styles.button} onPress={saveEdit}>
             <Text style={styles.buttonText}>{uploading ? t('saving') : t('save')}</Text>
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
       marginVertical: 20,
     },
     image: {
-      width: 250,
+      width: 240,
       height: 290,
       borderRadius: 10,
     },
@@ -162,7 +163,6 @@ const styles = StyleSheet.create({
     location: {
       fontSize: 28,
       fontWeight: 'bold',
-      marginLeft: 10,
       marginTop: 10,
     },
     date: {
@@ -173,8 +173,7 @@ const styles = StyleSheet.create({
     text: {
       fontWeight: 'bold',
       fontSize: 24,
-      marginTop: 15,
-      marginBottom: 5,
+      marginTop: 5,
       marginHorizontal: 10,
     },
     text1: {
@@ -196,24 +195,31 @@ const styles = StyleSheet.create({
       fontWeight: '400',
       marginHorizontal: 10,
     },
+    memory1: {
+      fontSize: 14,
+      fontWeight: '400',
+      marginHorizontal: 10,
+      maxHeight: 60,
+    },
     button: {
-        alignSelf: 'center',
-        backgroundColor: '#B1C9DA',
-        marginTop: 20,
-        width: '50%',
-        height: 40,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
+      alignSelf: 'center',
+      backgroundColor: '#B1C9DA',
+      marginTop: 20,
+      width: '50%',
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     buttonText: {
-        fontSize: 18,
-        fontWeight: 'bold',
+      fontSize: 18,
+      fontWeight: 'bold',
     },
     score: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      width: '90%',
+      width: '95%',
+      alignSelf: 'center',
     },
     score1: {
       fontSize: 24,

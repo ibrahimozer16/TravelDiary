@@ -1,5 +1,5 @@
 {
-    "welcome": "Hoş geldiniz",
+    "welcome": "Hoş Geldiniz",
     "hello": "Merhaba",
     "name": "İsim",
     "surname": "Soyisim",
@@ -25,7 +25,7 @@
     "saving": "Kaydediliyor...",
     "locationPermissionDenied": "Konum izni reddedildi",
     "memorySavedSuccessfully": "Anı başarıyla kaydedildi!",
-    "fillAllFields": "Lütfen tüm alanları doldurun ve bir fotoğraf çekin",
+    "fillAllFields": "Lütfen tüm alanları doldurun",
     "unknownCity": "Bilinmeyen Şehir",
     "errorReverseGeocode": "Geri geocode hatası",
     "errorSavingMemory": "Anı kaydedilirken hata oluştu",

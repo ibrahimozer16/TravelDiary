@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet, TouchableOpacity, View, Modal, Text, Image } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -11,10 +11,11 @@ import { Feather } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 type LocationType = Location.LocationObject | null;
-type LocationType1 = {
+type LocationData = {
   latitude: number,
   longitude: number,
   title: string,
+  city?: string,
 }
 
 export default function MapScreen({navigation, route}:{navigation:any, route:any}) {
@@ -24,7 +25,7 @@ export default function MapScreen({navigation, route}:{navigation:any, route:any
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedMemory, setSelectedMemory] = useState<any>(null);
   const [location, setLocation] = useState<LocationType>(null);
-  const [locations, setLocations] = useState<LocationType1[]>([])
+  const [locations, setLocations] = useState<LocationData[]>([])
   const [region, setRegion] = useState({
     latitude: 40.193298,
     longitude: 29.074202,
@@ -33,7 +34,7 @@ export default function MapScreen({navigation, route}:{navigation:any, route:any
   });
 
   useEffect(() => {
-    (async () => {
+    const fetchLocationData = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         console.log(t('locationPermissionDenied'));
@@ -47,7 +48,7 @@ export default function MapScreen({navigation, route}:{navigation:any, route:any
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       });
-    })();
+    };
 
     const fetchLocations = async () => {
       const currentUser = auth.currentUser;
@@ -59,7 +60,7 @@ export default function MapScreen({navigation, route}:{navigation:any, route:any
       const querySnapshot = await getDocs(q);
       const locationsData = querySnapshot.docs.map(doc => {
         const data = doc.data();
-        console.log(data);
+        // console.log(data);
         return {
           latitude: data.location.latitude,
           longitude: data.location.longitude,
@@ -69,10 +70,11 @@ export default function MapScreen({navigation, route}:{navigation:any, route:any
       });
       setLocations(locationsData);
     }
+    fetchLocationData();
     fetchLocations();
   }, []);
 
-  const handleMarkerPress = (loc:any) => {
+  const handleMarkerPress = (loc:LocationData) => {
     console.log("Marker pressed:", loc);
     setSelectedMemory(loc);
     setModalVisible(true);
@@ -87,8 +89,8 @@ export default function MapScreen({navigation, route}:{navigation:any, route:any
     navigation.navigate('Memory', {memory: selectedMemory});
   }
 
-  const moveToLocation = async (lat: any, lng: any) => {
-    if (mapRef.current) {  // mapRef'in null olmadığını kontrol edin
+  const moveToLocation = async (lat: number, lng: number) => {
+    if (mapRef.current) {
       mapRef.current.animateToRegion(
         {
           latitude: lat,
@@ -123,7 +125,7 @@ export default function MapScreen({navigation, route}:{navigation:any, route:any
             pinColor='blue'
           />
         )}
-        {memories.map((memory:any, index:any) => (
+        {memories.map((memory:any, index:number) => (
           <Marker
             key={index}
             coordinate={{
@@ -162,15 +164,22 @@ export default function MapScreen({navigation, route}:{navigation:any, route:any
             fetchDetails={true}
             placeholder={t('searchLocation')}
             onPress={(data, details = null) => {
-              console.log(JSON.stringify(data));
-              console.log(JSON.stringify(details?.geometry?.location));
-              moveToLocation(details?.geometry?.location.lat, details?.geometry?.location.lng)
+              console.log('Data: ', data);
+              console.log('Details: ', details);
+              if (details?.geometry?.location) {
+                console.log('Location:', details.geometry.location);
+                moveToLocation(details.geometry.location.lat, details.geometry.location.lng);
+              } else {
+                console.error('Details or geometry missing');
+              }
             }}
             query={{
               key: GOOGLE_API_KEY,
-              language: 'en',
+              language: 'tr',
             }}
             onFail={error => console.log(error)}
+            nearbyPlacesAPI='GooglePlacesSearch'
+            debounce={200}
           />
         </View>
       </View>
@@ -214,12 +223,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     top: Constants.statusBarHeight,
     alignSelf: 'center',
-  },
-  textInputContainer: {
-    width: '100%',
-  },
-  input: {
-    width: '100%',
   },
   image: {
     width: 100,

@@ -1,10 +1,15 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth } from '../model/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+
 
 export default function FirstScreen({navigation} : {navigation: any}) {
   
     const {t, i18n} = useTranslation();
+    const [isLoading, setIsLoading] = useState(true);
 
     const languageTr = () => {
         i18n.changeLanguage('tr');
@@ -21,6 +26,34 @@ export default function FirstScreen({navigation} : {navigation: any}) {
     const languageSp = () => {
         i18n.changeLanguage('sp');
     }
+
+    useEffect(() => {
+        const checkUserSession = async () => {
+            const userToken = await AsyncStorage.getItem('userToken');
+
+            if(userToken){
+                onAuthStateChanged(auth, (user) => {
+                    if(user){
+                        navigation.navigate('Home');
+                    }else{
+                        setIsLoading(false);
+                    } 
+                }
+            )
+            }else{
+                setIsLoading(false);
+            }
+        }
+        checkUserSession();
+    }, []);
+
+    if (isLoading) {
+        return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        );
+      }
  
     return (
     <View style={styles.container}>

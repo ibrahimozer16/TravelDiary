@@ -43,6 +43,8 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
                 password: state.password,
             })
 
+            await auth.signOut();
+
             dispatch({type: 'SET_USER', payload: state})
             alert(t('registrationSuccessful'));
             navigation.navigate('Login')
@@ -86,9 +88,9 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
                     <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('First')}>
                         <AntDesign name="arrowleft" size={24} color="black" />
                     </TouchableOpacity>
-                    <Image style={styles.image} source={require('../assets/dunya.png')}/>
                     <Text style={styles.text}>{t('travelDiary')}</Text>
-                    <Text style={styles.text1}>{t('login')}</Text>
+                    <Image style={styles.image} source={require('../assets/dunya.png')}/>
+                    <Text style={styles.text1}>{t('signup')}</Text>
                 </View>
                 <View style={styles.inputContainer}>
                     <Text style={styles.text2}>{t('name')}</Text>
@@ -123,7 +125,7 @@ export default function SignUpScreen({navigation} : {navigation: any}) {
                         <Text style={styles.buttonText}>{t('signup')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.button1} onPress={returnLogin}>
-                        <Text>{t('haveAccount')}</Text>
+                        <Text style={styles.haveAccount}>{t('haveAccount')}</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
         height: 130,
     },
     text: {
-        fontSize: 25,
+        fontSize: 30,
         fontWeight: 'bold',
     },
     text1: {
@@ -176,6 +178,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: '#99B6B6',
         height: 30,
+        paddingLeft: 10,
     },
     button: {
         alignSelf: 'center',
@@ -196,4 +199,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         fontSize: 18,
     },
+    haveAccount: {
+        textDecorationLine: 'underline',
+    }
 })

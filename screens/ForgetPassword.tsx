@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: '#99B6B6',
         height: 30,
+        padding: 10,
     },
     button: {
         alignSelf: 'center',
